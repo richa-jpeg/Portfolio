@@ -155,18 +155,22 @@ export function ProjectCard({ project, featured = false }) {
         <Tape rotate={-7} style={{ left: 18, top: -10 }} />
         <Tape rotate={6} style={{ right: 18, top: -10 }} />
         {internal && <span className="project-badge">Case study</span>}
-        {project.video ? (
-          <span
-            className="project-thumb"
-            style={{ backgroundImage: `url(${project.image})` }}
-            role="img"
-            aria-label={project.title}
-          >
-            <span className="play-dot">▶</span>
-          </span>
-        ) : (
-          <img src={project.image} alt={project.title} loading="lazy" decoding="async" width="640" height="400" />
-        )}
+        {/* The rounded photo lives in its own overflow-hidden clip, so the
+            tapes (siblings, hanging above the top edge) are never cut off. */}
+        <span className="project-media-clip">
+          {project.video ? (
+            <span
+              className="project-thumb"
+              style={{ backgroundImage: `url(${project.image})` }}
+              role="img"
+              aria-label={project.title}
+            >
+              <span className="play-dot">▶</span>
+            </span>
+          ) : (
+            <img src={project.image} alt={project.title} loading="lazy" decoding="async" width="640" height="400" />
+          )}
+        </span>
       </div>
       <div className="project-meta">
         <FigNote color={project.color || 'blue'} rotate={project.rotate || 0} className="project-note">

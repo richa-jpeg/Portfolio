@@ -8,7 +8,21 @@
      image: workImg
    (drop the file in src/images/ — Vite bundles it and hashes it
    for caching, which is great for GitHub Pages).
+
+   PINNED SECTION THUMBNAILS (featured-1..4.jpg):
+   The four cards in the "Pinned to the board" section currently
+   use random 1280×800 (16:10) template JPEGs kept in src/public/.
+   To use your own thumbnails, simply drop your images over those
+   four files (keep the same file names) or import new files below
+   and point image: at them. The cards are fluid: the thumbnail
+   always fills the card width and keeps the 16:10 ratio at any
+   screen size, so any image with that ratio will fit perfectly.
    ============================================================ */
+
+import thumb1 from './public/featured-1.jpg';
+import thumb2 from './public/featured-2.jpg';
+import thumb3 from './public/featured-3.jpg';
+import thumb4 from './public/featured-4.jpg';
 
 export const person = {
   name: 'Richa',
@@ -104,7 +118,8 @@ export const content = {
     },
   ],
 
-  /* 3 · PROJECTS I'M PROUD OF — images taped to the board, click to open */
+  /* 3 · PROJECTS I'M PROUD OF — four cards pinned to the board,
+     images taped on, click to open */
   featured: [
     {
       id: 'p1',
@@ -113,7 +128,7 @@ export const content = {
       url: 'https://example.com/featured-work',
       color: 'blue',
       rotate: -1,
-      image: ph('#9747ff', '#ff5ca8', 'Featured work'),
+      image: thumb1,
     },
     {
       id: 'p2',
@@ -122,7 +137,7 @@ export const content = {
       url: 'https://example.com/design-system',
       color: 'pink',
       rotate: 1.5,
-      image: ph('#ff8fb3', '#ffd873', 'Design system'),
+      image: thumb2,
     },
     {
       id: 'p3',
@@ -131,7 +146,16 @@ export const content = {
       route: 'instagram',
       color: 'lilac',
       rotate: 1.2,
-      image: ph('#feda75', '#d62976', 'Instagram posts', '📸'),
+      image: thumb3,
+    },
+    {
+      id: 'p4',
+      title: 'Brand identity',
+      desc: 'A flexible identity kit — logo, type and palette that scale from favicon to billboard.',
+      url: 'https://example.com/brand-identity',
+      color: 'green',
+      rotate: -1.6,
+      image: thumb4,
     },
   ],
 

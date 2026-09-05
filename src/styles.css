@@ -327,7 +327,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ============================================================
    3 & 4 · PROJECTS (tape + note, clickable)
    ============================================================ */
-.featured-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px 36px; }
+.featured-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 46px 36px; }
 .more-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
 
 .project-card {
@@ -341,16 +341,34 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .project-media {
   position: relative;
   margin-top: 14px;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #ececf0;
   box-shadow: var(--shadow-md);
 }
-.project-media img,
+/* Rounded clip around just the photo/video poster. Keeping overflow here
+   (instead of on .project-media) means the tapes that hang above the top
+   edge are no longer cut off — they read as sitting on top of the card. */
+.project-media-clip {
+  display: block;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #ececf0;
+}
+/* Real <img> thumbnails: width is fluid, but the height must follow the
+   width so the box keeps its 16:10 ratio at every screen size (an explicit
+   height:auto overrides the fixed height="…" attribute on the <img>, which
+   would otherwise pin the box height and make object-fit crop the photo as
+   the window narrows). */
+.project-media img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  transition: transform .25s var(--ease);
+}
+/* Background-poster thumbs (video cards) have no intrinsic ratio, so they
+   need the aspect-ratio to size the box at all. */
 .project-thumb {
   width: 100%;
   aspect-ratio: 16 / 10;
-  object-fit: cover;
   transition: transform .25s var(--ease);
 }
 .project-card:hover .project-media img,
@@ -515,6 +533,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   .hero-doodles .doodle-star { left: 4px !important; }
   .hero-doodles .doodle-spark { right: 14px !important; }
   .hero-doodles .doodle-heart { left: 28px !important; }
+}
+@media (max-width: 720px) {
+  .featured-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .board { padding: 96px 16px 72px; }
