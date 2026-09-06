@@ -152,8 +152,7 @@ export function ProjectCard({ project, featured = false }) {
       aria-label={`Open ${internal ? 'case study' : 'project'}: ${project.title}`}
     >
       <div className="project-media">
-        <Tape rotate={-7} style={{ left: 18, top: -10 }} />
-        <Tape rotate={6} style={{ right: 18, top: -10 }} />
+        <Tape rotate={12} style={{ right: 24, top: -10 }} />
         {internal && <span className="project-badge">Case study</span>}
         {/* The rounded photo lives in its own overflow-hidden clip, so the
             tapes (siblings, hanging above the top edge) are never cut off. */}
