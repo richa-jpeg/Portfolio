@@ -19,10 +19,10 @@
    screen size, so any image with that ratio will fit perfectly.
    ============================================================ */
 
-import thumb1 from './public/featured-1.jpg';
-import thumb2 from './public/featured-2.jpg';
-import thumb3 from './public/featured-3.jpg';
-import thumb4 from './public/featured-4.jpg';
+import thumb1 from './public/Artboard-2.jpg';
+import thumb2 from './public/Artboard-3.jpg';
+import thumb3 from './public/Artboard-5.jpg';
+import thumb4 from './public/Artboard-4.jpg';
 
 export const person = {
   name: 'Richa',
