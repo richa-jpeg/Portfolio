@@ -15,6 +15,9 @@ import {
   FigNote, Sticker, Tape, Arrow, Doodle, ProjectCard, ZoomControls, Nav, Section,
 } from './components.jsx';
 import InstagramCase from './InstagramCase.jsx';
+import PhoneAppCase from './PhoneAppCase.jsx';
+import LinkedInCase from './LinkedInCase.jsx';
+import BookletCase from './BookletCase.jsx';
 
 const MIN_ZOOM = 0.6;
 const MAX_ZOOM = 1.5;
@@ -244,8 +247,16 @@ function Board() {
 
 /* ------------------------------------------------------------
    ROUTER SHELL — keeps the board mounted (state preserved)
-   and overlays the case-study page when routed there.
+   and overlays a case-study page when routed there. The phone,
+   tablet and booklet cases all zoom in from the table.
    ------------------------------------------------------------ */
+const CASES = {
+  '#/instagram': { title: 'Instagram case study — Richa', Component: InstagramCase },
+  '#/phone': { title: 'Leafy app case study — Richa', Component: PhoneAppCase },
+  '#/linkedin': { title: 'LinkedIn case study — Richa', Component: LinkedInCase },
+  '#/booklet': { title: 'Booklet case study — Richa', Component: BookletCase },
+};
+
 export default function App() {
   const [route, setRoute] = useState(() => window.location.hash);
 
@@ -255,18 +266,18 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const isCase = route.startsWith('#/instagram');
+  const active = CASES[route];
 
   useEffect(() => {
-    document.title = isCase ? 'Instagram case study — Richa' : 'Richa — Portfolio Board';
-  }, [isCase]);
+    document.title = active ? active.title : 'Richa — Portfolio Board';
+  }, [active]);
 
   return (
     <>
-      <div className={`board-ui${isCase ? ' board-ui-hidden' : ''}`}>
+      <div className={`board-ui${active ? ' board-ui-hidden' : ''}`}>
         <Board />
       </div>
-      {isCase && <InstagramCase />}
+      {active ? <active.Component /> : null}
     </>
   );
 }

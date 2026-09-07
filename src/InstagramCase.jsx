@@ -207,7 +207,7 @@ export default function InstagramCase() {
   const { account, posts, notes } = instagram;
 
   return (
-    <main className="case-page">
+    <main className="case-page case-table">
       <a className="case-back" href="#/">← Back to the board</a>
 
       <div className={`case-layout${entered ? ' in' : ''}`}>
