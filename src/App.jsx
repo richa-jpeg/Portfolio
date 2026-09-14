@@ -100,11 +100,6 @@ function Board() {
           <Section id="about" kicker="01 · Hello there" title="About" highlight="me">
             <div className="hero">
               <div className="hero-left">
-                <div className="hero-stickers">
-                  {content.hero.stickers.map((s) => (
-                    <Sticker key={s.emoji} emoji={s.emoji} label={s.label} size={s.size} rotate={s.rotate} />
-                  ))}
-                </div>
 
                 <FigNote color="yellow" rotate={-1.5} className="hero-note">
                   {content.hero.note}
