@@ -123,18 +123,18 @@ export const content = {
   featured: [
     {
       id: 'p1',
-      title: 'Featured work',
-      desc: 'A FigJam-style canvas for creative teams — pan, zoom, sticky notes and live cursors.',
-      url: 'https://example.com/featured-work',
+      title: 'Brand booklet',
+      desc: 'A tiny booklet kept on the table — tap it and flip through the pages.',
+      route: 'booklet',
       color: 'blue',
       rotate: -1,
       image: thumb1,
     },
     {
       id: 'p2',
-      title: 'Design system',
-      desc: '40+ accessible components, tokens and docs used by six product teams.',
-      url: 'https://example.com/design-system',
+      title: 'LinkedIn posts',
+      desc: 'A tablet case study replicating LinkedIn posts — tap to zoom in and interact.',
+      route: 'linkedin',
       color: 'pink',
       rotate: 1.5,
       image: thumb2,
@@ -150,9 +150,9 @@ export const content = {
     },
     {
       id: 'p4',
-      title: 'Brand identity',
-      desc: 'A flexible identity kit — logo, type and palette that scale from favicon to billboard.',
-      url: 'https://example.com/brand-identity',
+      title: 'Mobile app',
+      desc: 'A phone-frame case study, same as Instagram — tap to zoom in and play with the app.',
+      route: 'phone',
       color: 'green',
       rotate: -1.6,
       image: thumb4,
@@ -302,6 +302,274 @@ export const instagram = {
         sticker: '💡',
         title: 'What I would do next',
         text: 'Animated reels cut from the same stills, plus a saved highlight to archive the campaign.',
+      },
+    ],
+  },
+};
+
+/* ============================================================
+   PHONE APP CASE STUDY — the page at #/phone
+   Same phone frame as the Instagram case (zooms in to fill the
+   screen, rests on the table) but with a different in-phone app.
+   ============================================================ */
+export const phoneApp = {
+  app: { name: 'Leafy', emoji: '🌿', avatar: '🍀' },
+  hero: {
+    greeting: 'Good morning, Richa 🌤️',
+    title: 'Your plants are thriving',
+    subtitle: 'Watering day for 3 little friends',
+    progress: '72%',
+    emoji: '🪴',
+  },
+  items: [
+    { emoji: '🌱', title: 'Monstera', sub: 'Water today · 240 ml' },
+    { emoji: '🪴', title: 'Snake plant', sub: 'Healthy · water in 3 days' },
+    { emoji: '🌵', title: 'Cactus trio', sub: 'Soak next week' },
+    { emoji: '🍃', title: 'Fern corner', sub: 'Mist twice a day' },
+  ],
+  tabs: [
+    { label: 'Home', emoji: '🏠' },
+    { label: 'Explore', emoji: '🔍' },
+    { label: 'Add', emoji: '➕' },
+    { label: 'Care', emoji: '💧' },
+    { label: 'Profile', emoji: '👤' },
+  ],
+  notes: {
+    leftLabel: 'Why this design',
+    left: [
+      {
+        color: 'green',
+        rotate: -1.5,
+        sticker: '🌿',
+        title: 'The brief',
+        text: 'A plant-care app that feels like a warm morning — glanceable, calm and a little playful.',
+      },
+      {
+        color: 'blue',
+        rotate: 1,
+        sticker: '🧩',
+        title: 'Phone frame',
+        text: 'Same zoom-in phone frame as the Instagram case, resting on a table so the app feels like a real device.',
+      },
+      {
+        color: 'lilac',
+        rotate: -1,
+        sticker: '🎯',
+        title: 'Interaction',
+        text: 'Tap the bottom tabs to switch modes — the app is fully tappable, not just a mockup.',
+      },
+    ],
+    rightLabel: 'Results',
+    right: [
+      {
+        color: 'yellow',
+        rotate: 1.2,
+        sticker: '📈',
+        title: 'Habit loop',
+        text: 'Daily care cards keep watering streaks front-and-center; 86% of testers returned the next day.',
+      },
+      {
+        color: 'pink',
+        rotate: -1.2,
+        sticker: '🛠️',
+        title: 'How it was built',
+        text: 'Prototyped in FigJam, then rebuilt in React with the same phone frame the portfolio reuses.',
+      },
+    ],
+  },
+};
+
+/* ============================================================
+   LINKEDIN TABLET CASE STUDY — the page at #/linkedin
+   A tablet zooms in from the board and shows a LinkedIn-style
+   feed; you can like posts and follow the profile.
+   ============================================================ */
+export const linkedin = {
+  profile: {
+    name: 'Richa',
+    headline: 'Designer & developer · Building the FigJam portfolio',
+    initials: 'RS',
+    color: '#0a66c2',
+  },
+  posts: [
+    {
+      id: 'li1',
+      author: 'Richa',
+      headline: 'Designer & developer',
+      time: '1w',
+      avatar: 'RS',
+      color: '#0a66c2',
+      text: 'Just shipped the new onboarding flow for Leafy 🌿 — five steps down to two, and signups are up 31%. Design is the product.',
+      likes: 248,
+      comments: 14,
+      image: ph('#7c5cff', '#4cc9f0', '', '🌿'),
+    },
+    {
+      id: 'li2',
+      author: 'Richa',
+      headline: 'Designer & developer',
+      time: '2w',
+      avatar: 'RS',
+      color: '#0a66c2',
+      text: 'A little portfolio secret: everything on this board is one React page pretending to be a desk full of FigJam bits. Zoom in, scroll, open the cases 📌',
+      likes: 402,
+      comments: 31,
+    },
+    {
+      id: 'li3',
+      author: 'Richa',
+      headline: 'Designer & developer',
+      time: '1mo',
+      avatar: 'RS',
+      color: '#0a66c2',
+      text: 'Three tips for LinkedIn carousels that actually convert: 1) one idea per page, 2) number the pages, 3) end with a call to action. Swipe data never lies.',
+      likes: 561,
+      comments: 47,
+      image: ph('#f6d365', '#fda085', '', '📊'),
+    },
+    {
+      id: 'li4',
+      author: 'Richa',
+      headline: 'Designer & developer',
+      time: '2mo',
+      avatar: 'RS',
+      color: '#0a66c2',
+      text: 'Coffee fuels design systems. Documented the whole component library before lunch ☕ — tokens, variants, states and all.',
+      likes: 173,
+      comments: 9,
+      image: ph('#d62976', '#962fbf', '', '☕'),
+    },
+  ],
+  notes: {
+    leftLabel: 'Why this design',
+    left: [
+      {
+        color: 'blue',
+        rotate: -1.5,
+        sticker: '📱',
+        title: 'The brief',
+        text: 'Recreate LinkedIn posts inside a tablet frame so readers can scroll and react without leaving the board.',
+      },
+      {
+        color: 'pink',
+        rotate: 1,
+        sticker: '🧩',
+        title: 'On the table',
+        text: 'The tablet sits on a wooden tabletop with a soft shadow — one of the objects kept on the desk.',
+      },
+      {
+        color: 'lilac',
+        rotate: -1,
+        sticker: '🎯',
+        title: 'Interaction',
+        text: 'Like and follow buttons really work — tap them to update the counts, just like the real app.',
+      },
+    ],
+    rightLabel: 'Results',
+    right: [
+      {
+        color: 'green',
+        rotate: 1.2,
+        sticker: '📈',
+        title: 'The numbers',
+        text: 'A like on the tablet increments the counter instantly — small details make the mockup feel alive.',
+      },
+      {
+        color: 'yellow',
+        rotate: -1.2,
+        sticker: '🛠️',
+        title: 'How it was built',
+        text: 'Plain CSS device frame + a tiny React feed with local state. Nothing heavy, works offline.',
+      },
+    ],
+  },
+};
+
+/* ============================================================
+   BOOKLET CASE STUDY — the page at #/booklet
+   A booklet kept on the table zooms in; pages turn with a 3D
+   page-flip animation. Click the page or use the arrows.
+   ============================================================ */
+export const booklet = {
+  brand: 'Leafy',
+  /* A real little book now: every LEAF has TWO printed sides (front + back).
+     Each open frame shows a two-page spread — the back print of the leaf
+     you just turned sits on the LEFT, the front print of the open leaf on
+     the RIGHT. Reading order: front pages are 1, 3, 5… (right), backs are
+     2, 4, 6… (left after the turn). Add or remove leaves freely. */
+  leaves: [
+    {
+      front: {
+        titlePage: true,
+        emoji: '🌿',
+        title: 'Leafy',
+        subtitle: 'Brand booklet',
+        lines: ['A pocket guide to the identity system', 'Tap the right page or use the arrows to turn'],
+      },
+      back: {
+        emoji: '🎨',
+        title: 'Palette',
+        lines: ['Warm greens and terracotta', 'Leaf #7aa56f · Soil #b06a45', 'Cream paper backgrounds'],
+      },
+    },
+    {
+      front: {
+        emoji: '🔤',
+        title: 'Type',
+        lines: ['Headlines — a friendly serif', 'Body — humanist sans', 'One size up for small screens'],
+      },
+      back: {
+        emoji: '📷',
+        title: 'Imagery',
+        lines: ['Morning-light product shots', 'Soft shadows, no hard edges', 'Always one plant per frame'],
+      },
+    },
+    {
+      front: {
+        emoji: '✨',
+        title: 'Principles',
+        lines: ['Calm over loud', 'Care before conversion', 'Design the habit, not the hype'],
+      },
+      back: {
+        emoji: '🙌',
+        title: 'Thanks!',
+        lines: ['Made with care and caffeine', 'The full brand kit lives on the board'],
+      },
+    },
+  ],
+  notes: {
+    leftLabel: 'Why this design',
+    left: [
+      {
+        color: 'yellow',
+        rotate: -1.5,
+        sticker: '📘',
+        title: 'The brief',
+        text: 'A small printed booklet for the Leafy brand, kept on the table and opened by tapping it.',
+      },
+      {
+        color: 'blue',
+        rotate: 1,
+        sticker: '🧩',
+        title: 'Page turning',
+        text: 'Pages flip with a 3D page-turn — click the page (or the arrows) to leaf through cover to back.',
+      },
+    ],
+    rightLabel: 'Results',
+    right: [
+      {
+        color: 'green',
+        rotate: 1.2,
+        sticker: '📈',
+        title: 'The effect',
+        text: 'The spread reads like a real print piece: spine shadow, paper grain and a soft drop on the table.',
+      },
+      {
+        color: 'pink',
+        rotate: -1.2,
+        sticker: '🛠️',
+        title: 'How it was built',
+        text: 'Two faces per sheet with backface-visibility hidden — the flip is pure CSS 3D, no library.',
       },
     ],
   },
