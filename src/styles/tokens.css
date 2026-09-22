@@ -1,0 +1,256 @@
+/* ============================================================
+   TOKENS — palette, type scale, reset, shared utilities.
+   "Ink & Ember": near-black ink, warm cream, gold accent.
+   ============================================================ */
+
+:root {
+  /* --- surfaces (dark to light) --- */
+  --void: #050505;
+  --ink: #080808;
+  --charcoal: #0f0f0f;
+  --panel: #1a1a1a;
+  --ash: #2a2a2a;
+  --smoke: #3a3a3a;
+  --line: #1f1f1f;
+
+  /* --- text --- */
+  --cream: #f0ece4;
+  --dust: #666660;
+
+  /* --- accent --- */
+  --gold: #c8a882;
+  --gold-dim: #9a7e60;
+  --gold-soft: rgba(200, 168, 130, 0.15);
+  --gold-line: rgba(200, 168, 130, 0.28);
+
+  /* --- type --- */
+  --font-display: 'Inter Tight Variable', ui-sans-serif, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular,
+    'SF Mono', Menlo, Consolas, monospace;
+  /* Device mock-ups keep a neutral system stack — they are pretending to
+     be real apps, so they must NOT wear the site's display face. */
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  /* --- layout --- */
+  --gutter: clamp(1.25rem, 5vw, 5rem);
+  --stage: 100svh;
+  --maxw: 1280px;
+
+  /* --- motion --- */
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --radius: 0.625rem;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Lenis owns scrolling. `smooth` here would fight it: the native
+   smooth-scroll animation and Lenis's rAF-driven scrollTo both write
+   scrollTop, and the page stutters. */
+html {
+  scroll-behavior: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-display);
+  background-color: var(--ink);
+  color: var(--cream);
+  /* NOT `overflow: hidden` — the document is the scroller now. */
+  overflow-x: hidden;
+  font-synthesis-weight: none;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- Scrollbars ----------
+   Hidden on the root only. A visible root scrollbar shifts the pinned
+   section math, but the case-study overlays are long content documents
+   with no other scroll affordance, so they keep theirs. */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* ---------- Type scale ---------- */
+.text-display {
+  font-size: clamp(3.5rem, 10vw, 9rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+
+.text-hero {
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+}
+
+.text-title {
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  font-weight: 500;
+}
+
+/* The big uppercase chapter wordmarks — "SELECTED WORK" etc. */
+.text-chapter {
+  font-size: clamp(2.5rem, 9vw, 8rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.text-lead {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  color: var(--dust);
+}
+
+/* Small uppercase mono labels: chapter numbers, categories, meta. */
+.text-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--dust);
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+}
+
+/* ---------- Utilities ---------- */
+.gradient-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* 1px gold underline that grows in from the left on hover. */
+.hover-line {
+  position: relative;
+}
+.hover-line::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.4s var(--ease-snap);
+}
+.hover-line:hover::after,
+.hover-line:focus-visible::after {
+  width: 100%;
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+}
+
+/* Fixed film-grain overlay over the whole page. */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Accessibility ---------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   REDUCED MOTION — one global off-switch.
+   JS also branches on this (Lenis is never created, pins are never
+   made, the hero skips typing), but this catches CSS transitions
+   and keyframe animations that no JS touches.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

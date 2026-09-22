@@ -1,0 +1,209 @@
+/* ============================================================
+   CHROME — fixed UI that sits above the board: nav, cursor,
+   progress rule, preloader.
+   ============================================================ */
+
+/* ---------- Nav ---------- */
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem var(--gutter);
+  font-size: 0.78rem;
+  /* A scrim rather than a blur: backdrop-filter over the pinned gold
+     curtain costs a full-screen composite every frame. */
+  background: linear-gradient(to bottom, rgba(8, 8, 8, 0.92) 20%, rgba(8, 8, 8, 0));
+  pointer-events: none;
+}
+
+.nav > * {
+  pointer-events: auto;
+}
+
+.nav-brand {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
+
+.nav-brand-dot,
+.footer-brand-dot {
+  color: var(--gold);
+}
+
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 2rem);
+  list-style: none;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--dust);
+  transition: color 0.3s var(--ease-snap);
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: var(--cream);
+}
+
+.nav-index {
+  font-size: 0.6rem;
+  color: var(--gold-dim);
+}
+
+.nav-reel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--dust);
+  transition: color 0.3s var(--ease-snap);
+}
+
+.nav-reel:hover {
+  color: var(--gold);
+}
+
+.nav-reel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px rgba(200, 168, 130, 0.8);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- Scroll progress ---------- */
+.progress-track {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 130;
+  pointer-events: none;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  /* Left origin, or the bar grows outwards from the centre. */
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* ---------- Custom cursor ---------- */
+.cursor-ring,
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+}
+
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 236, 228, 0.45);
+}
+
+.cursor-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+/* Hide the OS cursor only where a fine pointer exists, and only on the
+   document root plus genuinely interactive elements. A blanket
+   `* { cursor: none !important }` forces the engine to re-evaluate the
+   cursor property on every element on every style invalidation. */
+@media (pointer: fine) {
+  html,
+  body {
+    cursor: none;
+  }
+  a,
+  button,
+  [role='button'],
+  [data-cursor] {
+    cursor: none;
+  }
+}
+
+/* ---------- Preloader ---------- */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--ink);
+  display: grid;
+  place-items: center;
+}
+
+.preloader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.preloader-brand {
+  color: var(--dust);
+}
+
+.preloader-num {
+  font-family: var(--font-mono);
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+
+.preloader-track {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 12vh;
+  height: 1px;
+  background: var(--line);
+}
+
+.preloader-bar {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .nav-list {
+    display: none;
+  }
+  .nav {
+    padding: 0.85rem var(--gutter);
+  }
+}

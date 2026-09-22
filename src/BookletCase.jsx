@@ -11,7 +11,7 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { booklet } from './content.jsx';
-import { FigNote } from './components.jsx';
+import Annotation from './components/ui/Annotation.jsx';
 
 /* One printed side rendered as a flipbook page. forwardRef is required:
    react-pageflip collects the page DOM nodes through refs. */
@@ -89,14 +89,14 @@ export default function BookletCase() {
 
   return (
     <main className="case-page case-table">
-      <a className="case-back" href="#/">← Back to the board</a>
+      <a className="case-back" href="#/">← Back to work</a>
 
       <div className={`case-layout${entered ? ' in' : ''}`}>
         {/* ---------- notes · left ---------- */}
         <aside className="case-notes case-notes-left" aria-label="Design notes">
           <span className="case-notes-label">{notes.leftLabel}</span>
           {notes.left.map((n, i) => (
-            <FigNote
+            <Annotation
               key={n.title}
               color={n.color}
               rotate={n.rotate}
@@ -106,14 +106,18 @@ export default function BookletCase() {
               {n.sticker ? <span className="case-note-emoji" aria-hidden="true">{n.sticker}</span> : null}
               <strong>{n.title}</strong>
               <p>{n.text}</p>
-            </FigNote>
+            </Annotation>
           ))}
         </aside>
 
         {/* ---------- the book on the table ---------- */}
         <div className="booklet-column">
           <div className="booklet">
-            <div className="fb-shell">
+            {/* `data-lenis-prevent-touch` tells Lenis to ignore touch
+                events that start here. Without it, dragging a page to
+                turn it scrolls the page instead — the flipbook and the
+                smooth-scroll layer both claim the same gesture. */}
+            <div className="fb-shell" data-lenis-prevent-touch data-lenis-prevent>
               <HTMLFlipBook
                 ref={bookRef}
                 width={300}
@@ -152,7 +156,7 @@ export default function BookletCase() {
         <aside className="case-notes case-notes-right" aria-label="Results">
           <span className="case-notes-label">{notes.rightLabel}</span>
           {notes.right.map((n, i) => (
-            <FigNote
+            <Annotation
               key={n.title}
               color={n.color}
               rotate={n.rotate}
@@ -162,7 +166,7 @@ export default function BookletCase() {
               {n.sticker ? <span className="case-note-emoji" aria-hidden="true">{n.sticker}</span> : null}
               <strong>{n.title}</strong>
               <p>{n.text}</p>
-            </FigNote>
+            </Annotation>
           ))}
         </aside>
       </div>

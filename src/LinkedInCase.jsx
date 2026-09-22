@@ -9,7 +9,7 @@
    ============================================================ */
 import { useEffect, useState } from 'react';
 import { linkedin } from './content.jsx';
-import { FigNote } from './components.jsx';
+import Annotation from './components/ui/Annotation.jsx';
 
 /* ---------- small stroke icons (LinkedIn-ish) ---------- */
 const LI_PATHS = {
@@ -53,14 +53,14 @@ export default function LinkedInCase() {
 
   return (
     <main className="case-page case-table">
-      <a className="case-back" href="#/">← Back to the board</a>
+      <a className="case-back" href="#/">← Back to work</a>
 
       <div className={`case-layout${entered ? ' in' : ''}`}>
         {/* ---------- notes · left ---------- */}
         <aside className="case-notes case-notes-left" aria-label="Design notes">
           <span className="case-notes-label">{notes.leftLabel}</span>
           {notes.left.map((n, i) => (
-            <FigNote
+            <Annotation
               key={n.title}
               color={n.color}
               rotate={n.rotate}
@@ -70,7 +70,7 @@ export default function LinkedInCase() {
               {n.sticker ? <span className="case-note-emoji" aria-hidden="true">{n.sticker}</span> : null}
               <strong>{n.title}</strong>
               <p>{n.text}</p>
-            </FigNote>
+            </Annotation>
           ))}
         </aside>
 
@@ -144,7 +144,7 @@ export default function LinkedInCase() {
         <aside className="case-notes case-notes-right" aria-label="Results">
           <span className="case-notes-label">{notes.rightLabel}</span>
           {notes.right.map((n, i) => (
-            <FigNote
+            <Annotation
               key={n.title}
               color={n.color}
               rotate={n.rotate}
@@ -154,7 +154,7 @@ export default function LinkedInCase() {
               {n.sticker ? <span className="case-note-emoji" aria-hidden="true">{n.sticker}</span> : null}
               <strong>{n.title}</strong>
               <p>{n.text}</p>
-            </FigNote>
+            </Annotation>
           ))}
         </aside>
       </div>
