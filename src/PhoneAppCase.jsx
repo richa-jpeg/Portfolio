@@ -17,7 +17,8 @@
    device you land on read as the same thing.
 
    Everything here is driven by `featured` in content.jsx, so a project added
-   there appears on the table with no change to this file.
+   there appears on the table with no change to this file — and a project that
+   carries a `url` links out to it instead of opening a case study.
    ============================================================ */
 import { useRef } from 'react';
 import { featured, table } from './content.jsx';
@@ -181,9 +182,19 @@ export default function PhoneAppCase() {
               <li key={p.id} className="table-item">
                 <a
                   className={`obj obj-${kind}`}
-                  href={`#/${p.route}`}
-                  onClick={pick(p.route)}
-                  aria-label={`Pick up the ${NOUN[kind]} — ${p.title} case study`}
+                  href={p.url || `#/${p.route}`}
+                  /* An off-site project (see `url` in content.jsx's `featured`)
+                     is a plain outbound link. There is no flight for it: the
+                     flight exists to carry the object into a case page, and
+                     there is no case page on the other side. */
+                  target={p.url ? '_blank' : undefined}
+                  rel={p.url ? 'noreferrer' : undefined}
+                  onClick={p.url ? undefined : pick(p.route)}
+                  aria-label={
+                    p.url
+                      ? `Pick up the ${NOUN[kind]} — ${p.title}, opens in a new tab`
+                      : `Pick up the ${NOUN[kind]} — ${p.title} case study`
+                  }
                   data-cursor
                 >
                   <Face />

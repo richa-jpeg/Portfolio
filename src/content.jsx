@@ -127,6 +127,10 @@ export const experience = [
    renders at that ratio and `object-fit: cover` will crop anything
    that isn't, rather than distort it.
    `route` opens the matching case study at #/<route>.
+   `url`, when present, WINS: the card becomes a plain outbound link
+   that opens in a new tab and routes nowhere. That is the whole
+   mechanism for an off-site project — see WorkCard.jsx, and note the
+   table at #/phone honours it too.
    ============================================================ */
 export const featured = [
   {
@@ -165,9 +169,13 @@ export const featured = [
     title: 'Brand booklet',
     category: 'Print & identity',
     year: '2024',
-    desc: 'An identity system bound as a booklet — tap through and turn the pages.',
+    desc: 'An identity system bound as a booklet — opens the full brand kit on its own site.',
     route: 'booklet',
     poster: thumbBooklet,
+    /* TODO: real URL — this is a placeholder. While it is set, the booklet
+       card and the booklet object on the table at #/phone both link out, and
+       the case study at #/booklet is reachable only by typing the hash. */
+    url: 'https://drive.google.com/file/d/1VWaGHsRlB6RthsCQHIwZR_Xu2zFFky2Z/view?pli=1',
   },
 ];
 
