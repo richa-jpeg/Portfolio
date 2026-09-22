@@ -155,13 +155,32 @@
   place-items: center;
 }
 
+/* The look of the device itself, at any size. The table page (#/phone) renders
+   `.obj-phone` / `.obj-tablet` — the same shell, smaller — so the object on the
+   table and the device it opens cannot drift apart.
+
+   The entry state is deliberately NOT in this rule. It lives in the next
+   block, scoped to `.phone, .tablet`: the table's objects are never released
+   by `.case-layout.in`, so inheriting the pre-hidden state would park them at
+   `opacity: 0` with nothing to reveal them — invisible, and silent. */
 .phone,
-.tablet {
+.tablet,
+.obj-phone,
+.obj-tablet {
   position: relative;
   background: #0b0b0d;
-  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.95),
+  /* Lit identically at any size; only the falloff scales, and the defaults
+     here are the full-height device's. */
+  box-shadow: 0 var(--dev-drop-y, 50px) var(--dev-drop-blur, 100px) -30px
+      rgba(0, 0, 0, 0.95),
     0 0 0 1px rgba(255, 255, 255, 0.07) inset,
-    0 0 90px -20px rgba(200, 168, 130, 0.28);
+    0 0 var(--dev-glow, 90px) -20px rgba(200, 168, 130, 0.28);
+}
+
+/* The case page's device enters from below, blurred and small, and is released
+   by `.case-layout.in`. Scoped away from the table's objects. */
+.phone,
+.tablet {
   will-change: transform, filter, opacity;
   opacity: 0;
   scale: 0.87;
@@ -178,6 +197,31 @@
   scale: 1;
   translate: 0 0;
   filter: blur(0);
+}
+
+/* Arriving from an object picked up on the table page. The device is released
+   to its final state instantly and then flown in from where that object was,
+   by a `transform` written from lib/usePickFlight.js.
+
+   ONLY `transform` transitions here, and that is load-bearing twice over.
+   Every other channel above is already final, so they must arrive instantly —
+   otherwise the CSS entry would run its own rise-and-unblur at the same time
+   as the flight, and the two compose: the object travels twice as far and
+   grows twice as fast. And `transform` is animated by CSS rather than GSAP so
+   that there is exactly one writer of it.
+
+   Duration is mirrored by FLIGHT_MS in lib/usePickFlight.js.
+
+   Higher specificity than the plain `.phone`/`.tablet` pre-hidden rule, so it
+   also covers the booklet, whose entry state is declared further down. */
+.case-layout.picked .phone,
+.case-layout.picked .tablet,
+.case-layout.picked .booklet {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+  filter: blur(0);
+  transition: transform 950ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .phone {
@@ -214,17 +258,424 @@
   flex-direction: column;
 }
 
-/* Contact shadow on the studio floor. */
+/* Contact shadow on the studio floor. One rule for everything that stands on
+   a surface — the case devices and the table's objects — so they are lit the
+   same way. Only the geometry differs, and it is a variable because a table
+   object is a fraction of a device's height. The booklet is not a
+   `.phone`/`.tablet` shell but still needs planting. */
 .phone::after,
-.tablet::after {
+.tablet::after,
+.obj-phone::after,
+.obj-tablet::after,
+.obj-book::after {
   content: '';
   position: absolute;
   left: 4%;
   right: 4%;
-  bottom: -34px;
-  height: 30px;
+  bottom: var(--contact-y, -34px);
+  height: var(--contact-h, 30px);
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(0, 0, 0, 0.72), transparent 72%);
+}
+
+/* ============================================================
+   THE TABLE — #/phone
+
+   The page the Leafy app card opens. Instead of a device it shows three
+   objects on the same lit surface every case page uses, with a prompt to pick
+   one up. Picking one opens that project's case study and flies the object to
+   the centre of the screen (lib/usePickFlight.js); the back link there returns
+   HERE rather than to the board, so you can put one down and take another.
+
+   The objects are purpose-built miniatures, not scaled clones of the live case
+   UIs: those interiors are bound to their own component state, and at this
+   size they would be illegible anyway. They reuse the device shell above, so
+   the object you pick up and the device it becomes are the same shell.
+   ============================================================ */
+.case-tabletop {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vh, 2.5rem);
+  padding: clamp(5rem, 10vh, 7rem) var(--gutter) clamp(3rem, 7vh, 5rem);
+}
+
+.table-prompt {
+  margin: 0;
+  color: var(--cream);
+}
+
+.table-hint {
+  margin: 0;
+  color: var(--dust);
+}
+
+/* `align-items: flex-end` is what puts every object on one floor: the labels
+   are all the same height, so the objects above them share a base line no
+   matter how tall each object is. */
+.table-objects {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(1.75rem, 6vw, 5rem);
+  width: min(1080px, 100%);
+  margin: 0;
+  padding: 0;
+  /* tokens.css has no global list reset. */
+  list-style: none;
+}
+
+.table-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.9rem, 2.5vh, 1.4rem);
+}
+
+.table-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+  /* Reserved height: without it a title that wrapped would make its label
+     taller and lift that one object off the shared floor line. */
+  min-height: 3.9rem;
+}
+
+.table-index {
+  font-size: 0.7rem;
+  color: var(--gold);
+}
+
+.table-title {
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.table-meta {
+  color: var(--dust);
+}
+
+/* ---------- the objects ----------
+   `rotate` and `translate` are the individual transform properties, not
+   `transform`. That keeps `transform` free — it is the channel the flight
+   writes to on the other side of a pick — and lets the entry animation, the
+   tilt and the lift below each own a separate channel without fighting. */
+.obj {
+  display: block;
+  position: relative;
+  rotate: var(--tilt, 0deg);
+  translate: 0 0;
+  scale: 1;
+  transition: rotate 0.5s var(--ease-soft), translate 0.5s var(--ease-soft),
+    scale 0.5s var(--ease-soft);
+}
+
+.obj:hover,
+.obj:focus-visible {
+  translate: 0 -10px;
+  rotate: 0deg;
+  scale: 1.02;
+}
+
+.obj-phone {
+  --tilt: -1.4deg;
+  --contact-y: -12px;
+  --contact-h: 12px;
+  --dev-drop-y: 20px;
+  --dev-drop-blur: 40px;
+  --dev-glow: 44px;
+  height: clamp(230px, 30vh, 330px);
+  aspect-ratio: 9 / 19.4;
+  border-radius: 30px;
+  padding: 7px;
+}
+
+.obj-tablet {
+  --tilt: 1.1deg;
+  --contact-y: -12px;
+  --contact-h: 12px;
+  --dev-drop-y: 20px;
+  --dev-drop-blur: 40px;
+  --dev-glow: 44px;
+  height: clamp(240px, 32vh, 360px);
+  aspect-ratio: 3 / 4;
+  border-radius: 22px;
+  padding: 7px;
+}
+
+.obj-screen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Concentric with their frames, the same arithmetic .phone-screen uses at
+   11px padding. */
+.obj-screen-phone {
+  border-radius: 23px;
+  background: #fff;
+}
+
+.obj-screen-tablet {
+  border-radius: 15px;
+  background: #f3f2ef;
+}
+
+/* ---------- phone interior: the Instagram grid ---------- */
+.obj-ig-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 9px;
+}
+
+.obj-ig-mark {
+  width: 58px;
+  height: 9px;
+  border-radius: 4px;
+  background: #262626;
+}
+
+.obj-ig-dots {
+  width: 26px;
+  height: 9px;
+  border-radius: 4px;
+  background: #d8d8d8;
+}
+
+.obj-ig-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 11px;
+}
+
+.obj-ig-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #feda75, #d62976);
+}
+
+.obj-ig-bars,
+.obj-li-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.obj-ig-bars span,
+.obj-li-bars span {
+  height: 5px;
+  border-radius: 3px;
+  background: #e4e4e4;
+}
+
+.obj-ig-bars span:first-child,
+.obj-li-bars span:first-child {
+  width: 60%;
+}
+
+.obj-ig-bars span:last-child,
+.obj-li-bars span:last-child {
+  width: 38%;
+}
+
+.obj-ig-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* Explicit, rather than leaning on `align-content: stretch` to give the
+     implicit rows a height: empty tiles size to zero, so if that stretch does
+     not apply the screen renders blank with nothing to show for it. */
+  grid-auto-rows: 1fr;
+  gap: 3px;
+}
+
+.obj-ig-tile {
+  display: block;
+}
+
+.obj-ig-tabbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 12px;
+  border-top: 1px solid #efefef;
+}
+
+.obj-ig-tabbar span {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  background: #cfcfcf;
+}
+
+.obj-ig-tabbar span:first-child {
+  background: #262626;
+}
+
+/* ---------- tablet interior: the post feed ---------- */
+.obj-li-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 13px;
+  background: #fff;
+  border-bottom: 1px solid #e6e3df;
+}
+
+.obj-li-in {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: #0a66c2;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.obj-li-post {
+  margin: 9px 10px 0;
+  padding: 9px 11px;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.obj-li-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obj-li-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #c8a882;
+}
+
+.obj-li-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4.5px;
+  margin-top: 9px;
+}
+
+.obj-li-lines span {
+  height: 4.5px;
+  border-radius: 2px;
+  background: #e6e6e6;
+}
+
+.obj-li-lines span:nth-child(2) {
+  width: 88%;
+}
+
+.obj-li-lines span:nth-child(3) {
+  width: 60%;
+}
+
+/* ---------- the booklet ---------- */
+.obj-book {
+  --tilt: -0.8deg;
+  --contact-y: -10px;
+  --contact-h: 10px;
+  position: relative;
+  height: clamp(200px, 27vh, 300px);
+  aspect-ratio: 3 / 4;
+}
+
+.obj-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 3px 8px 8px 3px;
+  background: linear-gradient(150deg, #7ea972 0%, #4d7447 100%);
+  box-shadow: 0 var(--dev-drop-y, 20px) var(--dev-drop-blur, 40px) -14px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(255, 255, 255, 0.07) inset,
+    0 0 var(--dev-glow, 44px) -20px rgba(200, 168, 130, 0.28);
+  color: #f7f4ea;
+}
+
+.obj-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  border-radius: 3px 0 0 8px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0));
+}
+
+/* The fore-edge, so the object reads as bound paper rather than a green
+   rectangle. */
+.obj-pages {
+  position: absolute;
+  right: -3px;
+  top: 6px;
+  bottom: 6px;
+  width: 5px;
+  border-radius: 0 3px 3px 0;
+  background: repeating-linear-gradient(180deg, #fdf8ec 0 2px, #ded4bd 2px 3.5px);
+}
+
+.obj-cover-mark {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.obj-cover-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.obj-cover-sub {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+@media (max-width: 900px) {
+  /* The table stacks. */
+  .table-objects {
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(2rem, 5vh, 3rem);
+  }
+
+  .obj-phone,
+  .obj-tablet {
+    height: clamp(190px, 24vh, 250px);
+  }
+
+  .obj-book {
+    height: clamp(170px, 21vh, 220px);
+  }
+
+  /* A leaning object in a vertical list reads as a rendering mistake rather
+     than as a still life. */
+  .obj {
+    --tilt: 0deg;
+  }
 }
 
 /* ============================================================

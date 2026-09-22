@@ -7,8 +7,9 @@
      toggle and update the counts.
    Everything shown is driven by `linkedin` in content.jsx.
    ============================================================ */
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { linkedin } from './content.jsx';
+import { usePickFlight } from './lib/usePickFlight.js';
 import Annotation from './components/ui/Annotation.jsx';
 
 /* ---------- small stroke icons (LinkedIn-ish) ---------- */
@@ -31,14 +32,13 @@ function LiIcon({ name, size = 18, className = '' }) {
 }
 
 export default function LinkedInCase() {
-  const [entered, setEntered] = useState(false);
   const [following, setFollowing] = useState(false);
   const [liked, setLiked] = useState(() => new Set());
+  const deviceRef = useRef(null);
 
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  /* Either the plain entry, or the flight in from the tablet picked up off the
+     table at #/phone. */
+  const { entered, picked } = usePickFlight('linkedin', deviceRef);
 
   const toggleLike = (id) => {
     setLiked((prev) => {
@@ -53,9 +53,14 @@ export default function LinkedInCase() {
 
   return (
     <main className="case-page case-table">
-      <a className="case-back" href="#/">← Back to work</a>
+      {/* Back goes to the table when the visitor got here by picking the tablet
+          up, so they land where they left off rather than at the top of the
+          board. A deep link has no table behind it. */}
+      <a className="case-back" href={picked ? '#/phone' : '#/'}>
+        {picked ? '← Back to the table' : '← Back to work'}
+      </a>
 
-      <div className={`case-layout${entered ? ' in' : ''}`}>
+      <div className={`case-layout${picked ? ' picked' : ''}${entered ? ' in' : ''}`}>
         {/* ---------- notes · left ---------- */}
         <aside className="case-notes case-notes-left" aria-label="Design notes">
           <span className="case-notes-label">{notes.leftLabel}</span>
@@ -76,7 +81,7 @@ export default function LinkedInCase() {
 
         {/* ---------- the tablet on the table ---------- */}
         <div className="tablet-zoom">
-          <div className="tablet">
+          <div className="tablet" ref={deviceRef}>
             <div className="tablet-screen">
               <header className="li-top">
                 <span className="li-logo" aria-hidden="true">in</span>

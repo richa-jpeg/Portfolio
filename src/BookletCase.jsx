@@ -8,9 +8,10 @@
    Content: `booklet.leaves` in content.jsx — each leaf has a
    printed `front` and `back`.
    ============================================================ */
-import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useMemo, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { booklet } from './content.jsx';
+import { usePickFlight } from './lib/usePickFlight.js';
 import Annotation from './components/ui/Annotation.jsx';
 
 /* One printed side rendered as a flipbook page. forwardRef is required:
@@ -43,14 +44,13 @@ const PageFace = forwardRef(function PageFace({ item, num }, ref) {
 });
 
 export default function BookletCase() {
-  const [entered, setEntered] = useState(false);
   const [cur, setCur] = useState(0);      // current page (from the onFlip event)
   const bookRef = useRef(null);
+  const deviceRef = useRef(null);
 
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  /* Either the plain entry, or the flight in from the booklet picked up off the
+     table at #/phone. */
+  const { entered, picked } = usePickFlight('booklet', deviceRef);
 
   const { leaves, notes } = booklet;
 
@@ -89,9 +89,14 @@ export default function BookletCase() {
 
   return (
     <main className="case-page case-table">
-      <a className="case-back" href="#/">← Back to work</a>
+      {/* Back goes to the table when the visitor got here by picking the
+          booklet up, so they land where they left off rather than at the top of
+          the board. A deep link has no table behind it. */}
+      <a className="case-back" href={picked ? '#/phone' : '#/'}>
+        {picked ? '← Back to the table' : '← Back to work'}
+      </a>
 
-      <div className={`case-layout${entered ? ' in' : ''}`}>
+      <div className={`case-layout${picked ? ' picked' : ''}${entered ? ' in' : ''}`}>
         {/* ---------- notes · left ---------- */}
         <aside className="case-notes case-notes-left" aria-label="Design notes">
           <span className="case-notes-label">{notes.leftLabel}</span>
@@ -112,7 +117,7 @@ export default function BookletCase() {
 
         {/* ---------- the book on the table ---------- */}
         <div className="booklet-column">
-          <div className="booklet">
+          <div className="booklet" ref={deviceRef}>
             {/* `data-lenis-prevent-touch` tells Lenis to ignore touch
                 events that start here. Without it, dragging a page to
                 turn it scrolls the page instead — the flipbook and the

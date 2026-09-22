@@ -369,3 +369,16 @@ export const booklet = {
     ],
   },
 };
+
+/* ============================================================
+   THE TABLE (#/phone) — copy for the three objects you can pick up.
+
+   This is the page the Leafy app card opens. It shows the phone, the tablet
+   and the booklet on a lit table rather than the Leafy app itself, and this
+   is the only copy on it. Which projects appear, and which object each one
+   becomes, is decided in PhoneAppCase.jsx.
+   ============================================================ */
+export const table = {
+  prompt: 'Pick one up to interact',
+  hint: 'Put it back to try another',
+};

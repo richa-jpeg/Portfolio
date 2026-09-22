@@ -8,8 +8,9 @@
    • Click a post to open a lightbox (images and videos).
    Everything shown is driven by `instagram` in content.jsx.
    ============================================================ */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { instagram } from './content.jsx';
+import { usePickFlight } from './lib/usePickFlight.js';
 import Annotation from './components/ui/Annotation.jsx';
 
 /* ---------- small stroke icons (Instagram-ish) ---------- */
@@ -189,14 +190,12 @@ function IgLightbox({ post, account, onClose }) {
 
 /* ---------- the case-study page ---------- */
 export default function InstagramCase() {
-  const [entered, setEntered] = useState(false);
   const [active, setActive] = useState(null);
+  const deviceRef = useRef(null);
 
-  /* Kick the entry animation on the next frame. */
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  /* Either the plain entry, or the flight in from the phone picked up off the
+     table at #/phone. */
+  const { entered, picked } = usePickFlight('instagram', deviceRef);
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') setActive(null); };
@@ -208,9 +207,14 @@ export default function InstagramCase() {
 
   return (
     <main className="case-page case-table">
-      <a className="case-back" href="#/">← Back to work</a>
+      {/* Back goes to the table when the visitor got here by picking the phone
+          up, so they land where they left off rather than at the top of the
+          board. A deep link has no table behind it. */}
+      <a className="case-back" href={picked ? '#/phone' : '#/'}>
+        {picked ? '← Back to the table' : '← Back to work'}
+      </a>
 
-      <div className={`case-layout${entered ? ' in' : ''}`}>
+      <div className={`case-layout${picked ? ' picked' : ''}${entered ? ' in' : ''}`}>
         {/* ---------- notes · left ---------- */}
         <aside className="case-notes case-notes-left" aria-label="Design notes">
           <span className="case-notes-label">{notes.leftLabel}</span>
@@ -229,9 +233,9 @@ export default function InstagramCase() {
           ))}
         </aside>
 
-        {/* ---------- the phone (zooms in to fit the screen) ---------- */}
+        {/* ---------- the phone (flown in from the table, or zooms in) ---------- */}
         <div className="phone-zoom">
-          <div className="phone">
+          <div className="phone" ref={deviceRef}>
             <div className="phone-screen">
               <IgTopBar />
               <IgProfile account={account} />
