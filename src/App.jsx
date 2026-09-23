@@ -52,7 +52,9 @@ function Board({ heroActive }) {
     <main className="board">
       <Hero active={heroActive} />
 
-      <CurtainReveal index="01" kicker="Chapter 01" title={['SELECTED', 'WORK']} runway={1.2} />
+      {/* The Chapter 01 gate is now just the gold card: the dark backdrop it
+          used to wipe over is gone, so it takes no runway and no index. */}
+      <CurtainReveal kicker="Chapter 01" title={['SELECTED', 'WORK']} />
 
       <Featured />
 

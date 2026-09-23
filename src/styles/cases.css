@@ -606,7 +606,7 @@
   justify-content: center;
   gap: 0.4rem;
   border-radius: 3px 8px 8px 3px;
-  background: linear-gradient(150deg, #7ea972 0%, #4d7447 100%);
+  background: linear-gradient(150deg, #683b7e 0%, #291731 100%);
   box-shadow: 0 var(--dev-drop-y, 20px) var(--dev-drop-blur, 40px) -14px rgba(0, 0, 0, 0.95),
     0 0 0 1px rgba(255, 255, 255, 0.07) inset,
     0 0 var(--dev-glow, 44px) -20px rgba(200, 168, 130, 0.28);
@@ -1230,7 +1230,149 @@
 }
 
 /* ============================================================
+   MYFITNESS (#/linkedin)
+
+   The page is two blocks of artwork: the landing board, then the Meta Ads row.
+   Nothing here is a device, so nothing here has an entry state to release —
+   the blocks arrive through a `gsap.from` in the component, which means reduced
+   motion gets them plainly visible instead of hidden.
+
+   The row is a native scroll container with scroll snapping rather than a
+   transform carousel. That buys touch swipe and trackpad scrolling for free,
+   and it is why the counter in the component reads `scrollLeft` instead of
+   tracking which button was pressed.
+   ============================================================ */
+.mf-page {
+  width: min(1500px, calc(100% - 2 * var(--gutter)));
+  margin-inline: auto;
+  padding: clamp(5rem, 10vh, 7rem) 0 clamp(3rem, 8vh, 5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 8vh, 6rem);
+}
+
+.mf-title {
+  margin-bottom: clamp(1rem, 3vh, 1.75rem);
+  font-size: clamp(1.15rem, 1.9vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+}
+
+.mf-figure {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--charcoal);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* `height: auto` against the width/height attributes the component sets: the
+   browser already knows the aspect ratio from those, so this reserves the box
+   before the (large) file arrives rather than reflowing when it lands. */
+.mf-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mf-carousel {
+  position: relative;
+}
+
+.mf-track {
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* A swipe that runs off the end of the row must not become a browser
+     back-gesture. */
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;
+}
+
+.mf-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* The track is focusable so it can be stepped with the arrow keys; without a
+   visible ring that would be a trap, so the site-wide :focus-visible outline
+   is left to do its job. */
+.mf-track:focus-visible {
+  border-radius: 12px;
+}
+
+.mf-ad {
+  flex: 0 0 clamp(200px, 24vw, 320px);
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  border-radius: 10px;
+  overflow: hidden;
+  scroll-snap-align: center;
+  background: var(--charcoal);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.mf-ad img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Every ad is 4:5, matching the box, so `cover` fills without cropping. */
+  object-fit: cover;
+}
+
+.mf-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: clamp(1rem, 3vh, 1.75rem);
+}
+
+.mf-controls button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--cream);
+  transition: border-color 0.3s var(--ease-snap), color 0.3s var(--ease-snap),
+    opacity 0.3s var(--ease-snap);
+}
+
+.mf-controls button:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.mf-controls button:disabled {
+  opacity: 0.3;
+}
+
+.mf-count {
+  min-width: 6ch;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--dust);
+}
+
+@media (max-width: 720px) {
+  .mf-ad {
+    flex-basis: min(72vw, 280px);
+  }
+}
+
+/* ============================================================
    LINKEDIN TABLET (#/linkedin)
+
+   DEAD: #/linkedin no longer renders a tablet — see MYFITNESS above. Kept
+   only so the feed can be brought back without rebuilding its stylesheet.
    ============================================================ */
 .li-top {
   flex: 0 0 auto;

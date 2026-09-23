@@ -6,10 +6,12 @@
    links are PLACEHOLDERS. Search for "TODO" and replace before
    publishing. Nothing here was invented about a real person.
 
-   The four case-study exports at the bottom (`instagram`,
-   `phoneApp`, `linkedin`, `booklet`) keep the exact shape the case
-   components already consume — editing their values is safe,
-   renaming their keys is not.
+   The case-study exports at the bottom (`instagram`, `phoneApp`,
+   `linkedin`, `booklet`, `myfitness`) keep the exact shape the case
+   components consume — editing their values is safe, renaming their
+   keys is not. `linkedin` is the exception: #/linkedin now reads
+   `myfitness` instead, so it is unused and is kept only in case the
+   tablet feed ever comes back.
    ============================================================ */
 
 /* Featured thumbnails. Natively 1920×1200 (16:10), which is exactly the
@@ -18,6 +20,7 @@ import thumbInstagram from './public/Artboard-2.jpg';
 import thumbLinkedIn from './public/Artboard-3.jpg';
 import thumbApp from './public/Artboard-4.jpg';
 import thumbBooklet from './public/Artboard-5.jpg';
+import hpoLanding from './public/HPO_landingpage.png';
 
 export const person = {
   name: 'Richa', // TODO: real name
@@ -127,54 +130,56 @@ export const experience = [
    renders at that ratio and `object-fit: cover` will crop anything
    that isn't, rather than distort it.
    `route` opens the matching case study at #/<route>.
-   `url`, when present, WINS: the card becomes a plain outbound link
-   that opens in a new tab and routes nowhere. That is the whole
-   mechanism for an off-site project — see WorkCard.jsx, and note the
-   table at #/phone honours it too.
+   `url`, when present, WINS for the rail card: it becomes a plain
+   outbound link that opens in a new tab and routes nowhere, which is
+   the whole mechanism for an off-site project — see WorkCard.jsx.
+   The table at #/phone deliberately IGNORES `url` and keeps every
+   object interactive, so a project can be off-site in the rail and
+   still be pick-up-able there.
    ============================================================ */
 export const featured = [
-  {
-    id: 'f1',
-    index: '01',
-    title: 'Instagram grid',
-    category: 'Social system',
-    year: '2026',
-    desc: 'A twelve-post grid built as a motion-ready template — tap through to scroll the feed and open a post.',
-    route: 'instagram',
-    poster: thumbInstagram,
-  },
-  {
+    {
     id: 'f2',
     index: '02',
-    title: 'LinkedIn campaign',
-    category: 'Editorial motion',
-    year: '2025',
-    desc: 'A post series designed to move in the feed — tap through to the tablet and use the real interactions.',
+    title: 'MYFITNESS',
+    category: 'FMCG',
+    year: 'Present',
+    desc: 'MYFITNESS is India’s leading health-focused food brand crafting protein-focused nutrition. Holding 40% market share of peanut butter category in India, MYFITNESS runs an omnichannel D2C business. Care to see In\'s and Out\'s of a consumer brand?',
     route: 'linkedin',
     poster: thumbLinkedIn,
   },
   {
     id: 'f3',
     index: '03',
-    title: 'Leafy app',
-    category: 'Product UI',
-    year: '2025',
-    desc: 'A plant-care app where the transitions carry the calm — tap through and switch the tabs yourself.',
+    title: 'ImBesharam',
+    category: 'Adult wellness',
+    year: '2024',
+    desc: 'ImBesharam is a D2C adult wellness brand operating through online channels and their social media handles. Come let’s take your “kinky” side for a spin :P',
     route: 'phone',
     poster: thumbApp,
   },
   {
+    id: 'f1',
+    index: '01',
+    title: 'Jaigarh Heritage Festival',
+    category: 'Cultural Event',
+    year: '2024',
+    desc: 'The Jaigarh Heritage Festival is an annual cultural celebration held at the historic Jaigarh Fort in Jaipur, Rajasthan. It is produced by Teamwork Arts in partnership with the royal family of Jaipur.',
+    route: 'instagram',
+    poster: thumbInstagram,
+  },
+  {
     id: 'f4',
     index: '04',
-    title: 'Brand booklet',
-    category: 'Print & identity',
+    title: 'Millimetre',
+    category: 'Luxury Space design',
     year: '2024',
-    desc: 'An identity system bound as a booklet — opens the full brand kit on its own site.',
+    desc: 'Millimetre is an Indian brand specializing in high-pressure decorative laminates, matching edge bands, and curated interior surface solutions',
     route: 'booklet',
     poster: thumbBooklet,
-    /* TODO: real URL — this is a placeholder. While it is set, the booklet
-       card and the booklet object on the table at #/phone both link out, and
-       the case study at #/booklet is reachable only by typing the hash. */
+    /* Off-site for the rail only: this makes the booklet CARD an outbound
+       link opening in a new tab rather than routing to #/booklet. The booklet
+       on the table at #/phone ignores it and stays the interactive flipbook. */
     url: 'https://drive.google.com/file/d/1VWaGHsRlB6RthsCQHIwZR_Xu2zFFky2Z/view?pli=1',
   },
 ];
@@ -347,6 +352,41 @@ export const linkedin = {
   },
 };
 
+/* ---------- MYFITNESS (#/linkedin) ----------
+   Two pieces of campaign work, in the order the page shows them.
+
+   The ads are read straight off the folder — every .png in
+   src/public/metaAds, ordered by the number in its filename. A plain glob
+   sorts as strings, which would file "MF meta 10" before "MF meta 2", hence
+   the numeric sort. Drop a new file in that folder and it joins the carousel.
+
+   `width`/`height` are the files' real pixel sizes, kept beside the paths so a
+   swapped image carries its own dimensions: the browser reserves the right box
+   before the bytes arrive, and a stale pair shows up as layout shift rather
+   than as an error. */
+const adNumber = (path) => parseInt(path.match(/(\d+)\.png$/)?.[1] ?? '0', 10);
+
+const metaAds = Object.entries(
+  import.meta.glob('./public/metaAds/*.png', { eager: true, import: 'default' })
+)
+  .sort(([a], [b]) => adNumber(a) - adNumber(b))
+  .map(([, src]) => src);
+
+export const myfitness = {
+  landing: {
+    title: 'Landing page design',
+    image: hpoLanding,
+    width: 11133,
+    height: 4905,
+  },
+  ads: {
+    title: 'Meta Ads design',
+    images: metaAds,
+    width: 1080,
+    height: 1350,
+  },
+};
+
 /* ---------- Brand booklet (#/booklet) ---------- */
 export const booklet = {
   brand: 'Leafy',
@@ -379,14 +419,34 @@ export const booklet = {
 };
 
 /* ============================================================
-   THE TABLE (#/phone) — copy for the three objects you can pick up.
+   THE TABLE (#/phone) — the three objects you can pick up.
 
-   This is the page the Leafy app card opens. It shows the phone, the tablet
-   and the booklet on a lit table rather than the Leafy app itself, and this
-   is the only copy on it. Which projects appear, and which object each one
-   becomes, is decided in PhoneAppCase.jsx.
+   This is the page the third Featured card opens. It shows a phone, a tablet
+   and a booklet on a lit table, and this is the only copy on it. Which object
+   each one becomes is decided in PhoneAppCase.jsx.
+
+   The phone and the tablet are the SAME projects as the Instagram and LinkedIn
+   cards, so they are still read from `featured` — rename a card and the object
+   on the table follows, which is what you want for one project in two places.
+
+   The booklet is deliberately NOT. It is its own piece: the fourth Featured
+   card is a different thing altogether (it links off-site), so letting the
+   table's booklet inherit that card's name meant renaming one renamed the
+   other. Hence a full entry here, cover text included, with nothing shared.
    ============================================================ */
 export const table = {
   prompt: 'Pick one up to interact',
   hint: 'Put it back to try another',
+
+  booklet: {
+    id: 't-book',
+    title: 'Zine',
+    category: 'Flipbook',
+    year: '2024',
+    kind: 'book',
+    route: 'booklet',
+    /* Printed on the cover. It lives here rather than hardcoded in the
+       component so the object and the caption under it cannot disagree. */
+    cover: { title: 'Zine', sub: 'FAP techniques' },
+  },
 };

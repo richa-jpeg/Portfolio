@@ -1,14 +1,15 @@
 /* ============================================================
-   CURTAIN REVEAL — the chapter gate.
+   CURTAIN REVEAL — the Chapter 01 gate.
 
-   A gold panel wipes up over a receding backdrop while the backdrop
-   dims, then the chapter wordmark lands on the gold. Because the
-   stage is pinned, scrolling further carries the curtain up and off
-   the top of the viewport — which is what actually reveals the next
-   chapter underneath. The wipe and the hand-off are the same motion.
+   This used to be a wipe: a gold panel climbed over a dark backdrop while an
+   outlined wordmark on that backdrop dimmed away underneath it. The dark half
+   is gone. What is left is the gold chapter card the wipe was revealing — so
+   there is now nothing to wipe over, nothing to dim, and nothing to pin. The
+   section is a plain full-height gold card, and the only motion left is the
+   wordmark landing on it as you reach it.
 
-   The reference repo leaves a dead `shard` element in this component
-   that is created and never animated. Ours is not carried over.
+   `index` and `runway` went with the pin: a runway only means something when
+   the section holds the viewport for a distance, and it no longer does.
    ============================================================ */
 import { useRef } from 'react';
 import { gsap, EASE } from '../../lib/gsapSetup.js';
@@ -16,10 +17,8 @@ import { useGsapContext } from '../../lib/useGsap.js';
 import { useReducedMotion } from '../../lib/useReducedMotion.js';
 
 export default function CurtainReveal({
-  index = '01',
   title = ['SELECTED', 'WORK'],
   kicker = 'Chapter 01',
-  runway = 1.2,
 }) {
   const sectionRef = useRef(null);
   const reduced = useReducedMotion();
@@ -27,38 +26,21 @@ export default function CurtainReveal({
   useGsapContext(
     sectionRef,
     (el) => {
-      const stage = el.querySelector('.curtain-stage');
-      const beneath = el.querySelector('.curtain-beneath');
-      const dim = el.querySelector('.curtain-dim');
-      const curtain = el.querySelector('.curtain-panel');
       const label = el.querySelector('.curtain-label');
+      if (!label) return;
 
-      gsap.set(curtain, { yPercent: 100 });
-      gsap.set(label, { opacity: 0, y: 40, scale: 0.96 });
-      gsap.set(dim, { opacity: 0 });
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: el,
-          pin: stage,
-          pinSpacing: true,
-          anticipatePin: 1,
-          start: 'top top',
-          end: `+=${runway * 100}%`,
-          scrub: 0.4,
-        },
-        defaults: { ease: EASE.cinematic },
+      /* `from`, never a CSS resting state that JS has to release: under
+         reduced motion useGsapContext skips this block entirely, and the
+         wordmark is then simply sitting there legible rather than stranded at
+         opacity 0 with nothing left to reveal it. */
+      gsap.from(label, {
+        opacity: 0,
+        y: 40,
+        scale: 0.96,
+        duration: 1.1,
+        ease: EASE.cinematic,
+        scrollTrigger: { trigger: el, start: 'top 70%', once: true },
       });
-
-      /* 0 → 0.75: the backdrop recedes and dims as the curtain climbs.
-         The curtain reaches full cover at ~0.75 and HOLDS, so the rest
-         of the scroll is what lifts it off to reveal the next chapter. */
-      tl.to(beneath, { scale: 0.92, duration: 0.75 }, 0)
-        .to(dim, { opacity: 0.65, duration: 0.75 }, 0)
-        .to(curtain, { yPercent: 0, duration: 0.75 }, 0);
-
-      /* 0.5 → 0.9: the wordmark lands on the gold. */
-      tl.to(label, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: EASE.soft }, 0.5);
     },
     [reduced]
   );
@@ -66,25 +48,13 @@ export default function CurtainReveal({
   return (
     <section className="chapter chapter-curtain" ref={sectionRef}>
       <div className="stage curtain-stage">
-        <div className="curtain-beneath" aria-hidden="true">
-          <div className="curtain-ghost">
+        <div className="curtain-label">
+          <span className="text-label curtain-kicker">{kicker}</span>
+          <h2 className="text-chapter curtain-title">
             {title.map((t) => (
               <span key={t}>{t}</span>
             ))}
-          </div>
-        </div>
-
-        <div className="curtain-dim" aria-hidden="true" />
-
-        <div className="curtain-panel">
-          <div className="curtain-label">
-            <span className="text-label curtain-kicker">{kicker}</span>
-            <h2 className="text-chapter curtain-title">
-              {title.map((t) => (
-                <span key={t}>{t}</span>
-              ))}
-            </h2>
-          </div>
+          </h2>
         </div>
       </div>
     </section>

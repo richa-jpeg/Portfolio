@@ -1,8 +1,8 @@
 /* ============================================================
    THE TABLE — #/phone
 
-   This route is the one the Leafy app card opens. Rather than a device, it
-   shows three objects on the lit studio surface every case page uses — a
+   This route is the one the third Featured card opens. Rather than a device,
+   it shows three objects on the lit studio surface every case page uses — a
    phone, a tablet and a booklet — with a prompt to pick one up. Picking one
    opens that project's case study and flies the object to the centre of the
    screen (lib/pickTransition.js + lib/usePickFlight.js). The back link there
@@ -16,9 +16,10 @@
    the device shell and palette instead, so the object you pick up and the
    device you land on read as the same thing.
 
-   Everything here is driven by `featured` in content.jsx, so a project added
-   there appears on the table with no change to this file — and a project that
-   carries a `url` links out to it instead of opening a case study.
+   WHERE THE OBJECTS COME FROM: the phone and the tablet are the Instagram and
+   LinkedIn projects, read from `featured`, so renaming either card renames the
+   object here too. The booklet is its own entry (`table.booklet`) so that it
+   and the fourth card can be renamed independently. See content.jsx for both.
    ============================================================ */
 import { useRef } from 'react';
 import { featured, table } from './content.jsx';
@@ -26,15 +27,15 @@ import { gsap, EASE } from './lib/gsapSetup.js';
 import { useGsapContext } from './lib/useGsap.js';
 import { setPick } from './lib/pickTransition.js';
 
-/* Which object each project becomes. This mapping lives here, not in
-   content.jsx, because `featured` also drives the Featured rail's four cards
-   and neither that section nor its content should move. The Leafy app maps to
-   nothing on purpose — this is its page, so it is the table rather than an
-   object on it, which is also what filters it out below. */
-const KIND = {
+/* Which rail projects appear on the table, and what each becomes.
+
+   The booklet is absent on purpose. It is NOT the fourth Featured card — that
+   card is a different piece linking off-site — so deriving it from `featured`
+   meant renaming one silently renamed the other. It comes from its own entry,
+   `table.booklet` in content.jsx, which is also where its cover text lives. */
+const RAIL_KINDS = {
   instagram: 'phone',
   linkedin: 'tablet',
-  booklet: 'book',
 };
 
 /* Spoken name of each object, for the link's accessible name. */
@@ -107,13 +108,12 @@ function TabletFace() {
 }
 
 /* ---------- the booklet: a closed cover ---------- */
-function BookFace() {
+function BookFace({ cover }) {
   return (
     <span className="obj-cover" aria-hidden="true">
       <span className="obj-spine" />
-      <span className="obj-cover-mark">🌿</span>
-      <span className="obj-cover-title">Leafy</span>
-      <span className="obj-cover-sub">Brand booklet</span>
+      <span className="obj-cover-title">{cover.title}</span>
+      <span className="obj-cover-sub">{cover.sub}</span>
       <span className="obj-pages" />
     </span>
   );
@@ -140,7 +140,13 @@ export default function PhoneAppCase() {
       .from(labels, { y: 16, opacity: 0, duration: 0.7, stagger: 0.12 }, 0.18);
   }, []);
 
-  const objects = featured.filter((p) => KIND[p.route]);
+  /* The two rail projects, then the booklet from its own entry. */
+  const objects = [
+    ...featured
+      .filter((p) => RAIL_KINDS[p.route])
+      .map((p) => ({ ...p, kind: RAIL_KINDS[p.route] })),
+    table.booklet,
+  ];
 
   /* Record where the object is on screen on the way out. Modifier-clicks open
      a new tab, where this module's state does not exist anyway, so there is
@@ -176,28 +182,24 @@ export default function PhoneAppCase() {
 
         <ul className="table-objects">
           {objects.map((p, i) => {
-            const kind = KIND[p.route];
+            const { kind } = p;
             const Face = FACES[kind];
             return (
               <li key={p.id} className="table-item">
                 <a
                   className={`obj obj-${kind}`}
-                  href={p.url || `#/${p.route}`}
-                  /* An off-site project (see `url` in content.jsx's `featured`)
-                     is a plain outbound link. There is no flight for it: the
-                     flight exists to carry the object into a case page, and
-                     there is no case page on the other side. */
-                  target={p.url ? '_blank' : undefined}
-                  rel={p.url ? 'noreferrer' : undefined}
-                  onClick={p.url ? undefined : pick(p.route)}
-                  aria-label={
-                    p.url
-                      ? `Pick up the ${NOUN[kind]} — ${p.title}, opens in a new tab`
-                      : `Pick up the ${NOUN[kind]} — ${p.title} case study`
-                  }
+                  href={`#/${p.route}`}
+                  /* `url` is deliberately ignored here, and this is the ONE
+                     place it is. An off-site project links out from its rail
+                     card (WorkCard.jsx), but the table exists to be picked up
+                     and interacted with — an object that quietly left the site
+                     would break the single thing this page is for. So every
+                     object on the table opens its case study, flight included. */
+                  onClick={pick(p.route)}
+                  aria-label={`Pick up the ${NOUN[kind]} — ${p.title} case study`}
                   data-cursor
                 >
-                  <Face />
+                  <Face cover={p.cover} />
                 </a>
 
                 <span className="table-label">

@@ -210,51 +210,22 @@
 }
 
 /* ============================================================
-   CURTAIN REVEAL
+   CURTAIN REVEAL — the Chapter 01 gate.
+
+   The gold chapter card, and only that. The dark backdrop and the outlined
+   wordmark it used to wipe over are gone, and with them every reason for the
+   layering: the gold is now the stage's own surface instead of an absolutely
+   positioned panel stacked over a backdrop, so there is no z-index to manage
+   and no `will-change` to keep a compositor layer alive for.
+
+   Nothing here is pre-hidden. The wordmark's entrance is a `gsap.from` in the
+   component, which means reduced motion (where the whole setup block is
+   skipped) leaves it plainly visible rather than invisible.
    ============================================================ */
 .curtain-stage {
   display: grid;
   place-items: center;
-  background: var(--void);
-}
-
-.curtain-beneath {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(ellipse 70% 60% at 50% 50%, #101010, var(--void) 75%);
-}
-
-.curtain-ghost {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: clamp(4rem, 16vw, 15rem);
-  line-height: 0.85;
-  font-weight: 700;
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(240, 236, 228, 0.08);
-}
-
-.curtain-dim {
-  position: absolute;
-  inset: 0;
-  background: var(--void);
-  opacity: 0;
-  z-index: 2;
-}
-
-.curtain-panel {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
   background: linear-gradient(150deg, var(--gold) 0%, var(--gold-dim) 100%);
-  display: grid;
-  place-items: center;
-  will-change: transform;
 }
 
 .curtain-label {
@@ -1160,9 +1131,9 @@
     display: none;
   }
 
-  /* The curtain panel is `inset: 0` with no transform of its own, so
-     with no GSAP it sits as a plain gold chapter card with its wordmark
-     already legible. Nothing to override. */
+  /* The curtain's wordmark arrives through a `gsap.from`, and
+     useGsapContext skips its whole setup block under reduced motion — so
+     the wordmark is simply there, legible, with nothing to release. */
 
   /* Without pinning, three viewport-height panels would just be a very
      tall empty page. */

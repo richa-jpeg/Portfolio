@@ -14,9 +14,13 @@
    other channel instantly (see the comment there for why that is
    load-bearing).
 
-   Returns `entered` (drives the notes' reveal) and `picked` (flight running).
-   `picked` is a latch: it is set once and never cleared, because removing it
-   would re-apply the device's pre-hidden state and blank it.
+   Returns `entered` (drives the notes' reveal) and `picked` (arrived from the
+   table). `picked` is a latch: it is set once and never cleared, because
+   removing it would re-apply the device's pre-hidden state and blank it.
+
+   `deviceRef` is optional. A case built out of artwork rather than a device
+   passes null: the pick is still claimed, so the back link still returns to
+   the table, but there is nothing to fly.
    ============================================================ */
 import { useLayoutEffect, useState } from 'react';
 import { takePick } from './pickTransition.js';
@@ -43,14 +47,28 @@ export function usePickFlight(route, deviceRef) {
     }
 
     const pick = takePick(route);
-    const device = deviceRef.current;
 
-    if (!pick || !device) {
+    if (!pick) {
       /* Nothing to fly from — a deep link, a refresh, or a ⌘-click into a new
          tab. Keep the original entry: two frames, so the browser paints the
          un-entered state before the class flip starts the transition. */
       const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
       return () => cancelAnimationFrame(raf);
+    }
+
+    /* Arrived by picking an object up off the table. Recorded even when there
+       is no device to fly, because `picked` is also what sends the back link to
+       the table instead of to the board. */
+    setPicked(true);
+
+    const device = deviceRef ? deviceRef.current : null;
+
+    /* A case with no mock-up — #/linkedin shows artwork, not a device — has
+       nothing to animate into place, so the pick is spent on the back link
+       alone. */
+    if (!device) {
+      setEntered(true);
+      return undefined;
     }
 
     /* Measure with the pre-hidden transform neutralised. Until `.picked` lands
