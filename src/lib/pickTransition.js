@@ -2,12 +2,16 @@
    PICK TRANSITION — carries a table object's screen position across the
    route change that opens its case study.
 
-   The object being picked up (the table at #/phone) and the device it becomes
-   (the case overlay) live in different DOM trees, and the overlay does not
-   exist until the hash changes. There is therefore never a moment when both
+   The object being picked up (on the table at #/imBesharam) and the device it
+   becomes (the case overlay) live in different DOM trees, and the overlay does
+   not exist until the hash changes. There is therefore never a moment when both
    are on screen for GSAP Flip to invert between — so instead the source rect
    is measured at click time, parked here, and claimed by the case component
    as it mounts.
+
+   The `route` both sides pass is a `routes` value from content.jsx rather than
+   a literal, because a mismatch here is invisible: `takePick` misses, the case
+   takes its plain entry and the flight just does not happen.
 
    Module-scoped rather than React state, and deliberately so: the value has to
    outlive the navigation, and it is written by a component that is being

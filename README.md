@@ -27,15 +27,24 @@ section.
 
 ## Case studies
 
-Four interactive device mock-ups, reachable from the rail:
+One page per project, each on its own route. Every route string lives in
+`routes` in `src/content.jsx` — the rail card, the routing table, the
+pick-up flight and the back links all read from there, because a route
+string written twice is one that can silently disagree with itself.
 
-- `#/instagram` — a phone running an Instagram-style profile: scroll the
-  grid, tap a post for a lightbox (images and video).
-- `#/linkedin` — a tablet running a feed. Like and Follow genuinely work
-  and update the counts.
-- `#/phone` — a plant-care app in the same phone frame; the tabs switch.
-- `#/booklet` — a brand booklet with a real 3D page-turn; click or drag
-  the page.
+| Route | Project | What it is |
+|---|---|---|
+| `#/myFitness` | My Fitness | Two blocks of campaign artwork: the landing board, then the Meta Ads row. |
+| `#/imBesharam` | ImBesharam | The table: a phone, a tablet and a booklet on a lit surface with a prompt to pick one up. |
+| `#/imBesharamPhone` | ImBesharam | The Instagram-style phone off that table; tap a post for a lightbox. |
+| `#/imBesharamTablet` | ImBesharam | The tablet off that table, running a feed with working Like and Follow. |
+| `#/imBesharamBooklet` | ImBesharam | The booklet off that table, with a real 3D page-turn. |
+| `#/jaigarhHeritageFestival` | Jaigarh Heritage Festival | The festival's own phone — the same shell, its own feed. |
+| `#/millimetre` | Millimetre | Empty on purpose; the route and the card are in place for the work. |
+
+The three ImBesharam objects are picked up and flown into their case page
+(`lib/pickTransition.js` + `lib/usePickFlight.js`), and the back link on
+those pages returns to the table rather than to the board.
 
 Routing is hash-based (no router dependency), so it works on GitHub Pages
 with no server config.
@@ -52,15 +61,15 @@ npm run preview  # preview the production build
 ## Where to edit things
 
 - **All copy** → `src/content.jsx`. Name, role, reel, chapters, credits,
-  stills, socials, and the four case studies. Placeholders are marked
-  `TODO` — replace them before publishing.
+  stills, socials, the routes, and the four case studies. Placeholders are
+  marked `TODO` — replace them before publishing.
 - **Palette and type scale** → `src/styles/tokens.css` (`:root`).
 - **Chapters** → `src/components/chapters/`.
 - **Scroll/tilt/marquee effects** → `src/components/effects/`.
 
-The case-study exports in `content.jsx` (`instagram`, `phoneApp`,
-`linkedin`, `booklet`) keep a fixed shape — edit their values freely, but
-renaming their keys will break the components that read them.
+The case-study exports in `content.jsx` are each headed with the page that
+reads them, and keep a fixed shape — edit their values freely, but renaming
+their keys will break those components. `phoneApp` is unused.
 
 ## How the scroll architecture works
 

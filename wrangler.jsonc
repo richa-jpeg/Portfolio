@@ -8,7 +8,7 @@
 //
 // `not_found_handling: single-page-application` answers unmatched paths with
 // index.html. Routing in this app is hash-based, so deep links like
-// `/#/instagram` are fragments the server never sees — this only covers
+// `/#/myFitness` are fragments the server never sees — this only covers
 // typo'd or truncated paths, where the homepage is the useful answer.
 {
   "name": "motion-portfolio",

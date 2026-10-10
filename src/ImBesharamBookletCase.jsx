@@ -1,5 +1,7 @@
 /* ============================================================
-   BOOKLET CASE STUDY — #/booklet
+   IMBESHARAM BOOKLET — #/imBesharamBooklet
+
+   The booklet that stands on ImBesharam's table.
    Powered by the react-pageflip npm package (wrapper around the
    MIT "page-flip" library) instead of custom flip code. It works
    like a real book: each open frame shows a two-page spread
@@ -10,7 +12,7 @@
    ============================================================ */
 import { forwardRef, useMemo, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
-import { booklet } from './content.jsx';
+import { booklet, routes } from './content.jsx';
 import { usePickFlight } from './lib/usePickFlight.js';
 import Annotation from './components/ui/Annotation.jsx';
 
@@ -43,14 +45,15 @@ const PageFace = forwardRef(function PageFace({ item, num }, ref) {
   );
 });
 
-export default function BookletCase() {
+export default function ImBesharamBookletCase() {
   const [cur, setCur] = useState(0);      // current page (from the onFlip event)
   const bookRef = useRef(null);
   const deviceRef = useRef(null);
 
   /* Either the plain entry, or the flight in from the booklet picked up off the
-     table at #/phone. */
-  const { entered, picked } = usePickFlight('booklet', deviceRef);
+     table at #/imBesharam. The route string is the one the table records the
+     pick against, and a mismatch fails silently — hence a `routes` value. */
+  const { entered, picked } = usePickFlight(routes.imBesharamBooklet, deviceRef);
 
   const { leaves, notes } = booklet;
 
@@ -92,7 +95,7 @@ export default function BookletCase() {
       {/* Back goes to the table when the visitor got here by picking the
           booklet up, so they land where they left off rather than at the top of
           the board. A deep link has no table behind it. */}
-      <a className="case-back" href={picked ? '#/phone' : '#/'}>
+      <a className="case-back" href={picked ? `#/${routes.imBesharam}` : '#/'}>
         {picked ? '← Back to the table' : '← Back to work'}
       </a>
 

@@ -3,10 +3,10 @@
 
    A case study normally enters with its own CSS animation: the device rises,
    unblurs and settles. When it was reached by picking an object up off the
-   table at #/phone, that entry is the wrong animation — it says nothing about
-   where the object was. Instead the device is placed exactly over the object's
-   last screen position and flown home, so the object appears to grow and come
-   to the centre of the screen.
+   table at #/imBesharam, that entry is the wrong animation — it says nothing
+   about where the object was. Instead the device is placed exactly over the
+   object's last screen position and flown home, so the object appears to grow
+   and come to the centre of the screen.
 
    The flight is a CSS transition on `transform` alone, driven from here. The
    case entry is already CSS, and keeping a single transform writer means there
@@ -18,9 +18,10 @@
    table). `picked` is a latch: it is set once and never cleared, because
    removing it would re-apply the device's pre-hidden state and blank it.
 
-   `deviceRef` is optional. A case built out of artwork rather than a device
-   passes null: the pick is still claimed, so the back link still returns to
-   the table, but there is nothing to fly.
+   `deviceRef` is optional in the signature, but every case page that calls this
+   hook now has a device to fly, so the no-device branch below is currently
+   unexercised: it is the shape to write if a case built out of artwork (rather
+   than a device) is ever picked up off the table again.
    ============================================================ */
 import { useLayoutEffect, useState } from 'react';
 import { takePick } from './pickTransition.js';
@@ -63,9 +64,10 @@ export function usePickFlight(route, deviceRef) {
 
     const device = deviceRef ? deviceRef.current : null;
 
-    /* A case with no mock-up — #/linkedin shows artwork, not a device — has
-       nothing to animate into place, so the pick is spent on the back link
-       alone. */
+    /* A case with no mock-up has nothing to animate into place, so the pick is
+       spent on the back link alone. No page takes this branch today — the
+       artwork page that used to (MyFitness) has no table object pointing at it
+       any more — but it is what a picked-up artwork would need. */
     if (!device) {
       setEntered(true);
       return undefined;

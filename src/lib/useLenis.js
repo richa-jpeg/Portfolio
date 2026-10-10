@@ -42,6 +42,20 @@ function create() {
     smoothWheel: true,
     wheelMultiplier: 1,
     touchMultiplier: 2,
+
+    /* Stopping Lenis does NOT make it step aside. A stopped instance still
+       listens on the window and calls `preventDefault()` on every wheel and
+       touch event it sees, which is every event on the page — so the case
+       overlays, which are their own scroll containers (`.case-page` is
+       `position: fixed; overflow-y: auto`) and are open exactly while Lenis
+       is stopped, could never be scrolled at all.
+
+       `prevent` is consulted for each node in the event's composed path
+       BEFORE that stopped check, so naming the overlay here hands its
+       events back to the browser — wheel and touch alike. Nothing else is
+       affected: the board carries no `.case-page`, and while an overlay is
+       open the board behind it is not scrollable anyway. */
+    prevent: (node) => node.classList?.contains('case-page'),
   });
 
   lenis.on('scroll', onScroll);

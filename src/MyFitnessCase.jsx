@@ -1,18 +1,19 @@
 /* ============================================================
-   MYFITNESS CASE STUDY — #/linkedin
+   MYFITNESS — #/myFitness
 
    Two pieces of campaign work, stacked and scrolled:
    • the landing page, shown whole
    • the Meta Ads set, as a carousel
 
-   There is no device here any more. This page used to be an interactive tablet
-   running a mock LinkedIn feed — working Like and Follow buttons — flanked by
-   annotation cards. All of that is gone. The work being shown is the artwork,
-   and a mock-up standing in front of it was in the way.
+   There is no device here. This page used to be an interactive tablet running
+   a mock LinkedIn feed — working Like and Follow buttons — flanked by
+   annotation cards. All of that is gone, and the tablet itself now stands on
+   ImBesharam's table (#/imBesharamTablet). The work being shown is the
+   artwork, and a mock-up standing in front of it was in the way.
 
-   Because there is no mock-up, there is nothing for a picked-up object to fly
-   into, so `usePickFlight` is given no device: it still claims the pick, which
-   is what sends the back link to the table rather than to the board.
+   Nothing picks this page up any more, so there is no pick to fly and no
+   `usePickFlight` here: the back link always goes to the board, and the
+   blocks arrive through the `gsap.from` below rather than an entry class.
 
    Every image is `loading="lazy"` except the first. That is not a nicety here:
    the landing board alone is a 11133×4905 PNG, and fifteen ads sit behind it.
@@ -21,14 +22,11 @@ import { useRef, useState } from 'react';
 import { myfitness } from './content.jsx';
 import { gsap, EASE } from './lib/gsapSetup.js';
 import { useGsapContext } from './lib/useGsap.js';
-import { usePickFlight } from './lib/usePickFlight.js';
 
-export default function LinkedInCase() {
+export default function MyFitnessCase() {
   const rootRef = useRef(null);
   const trackRef = useRef(null);
   const [slide, setSlide] = useState(0);
-
-  const { picked } = usePickFlight('linkedin', null);
 
   const { landing, ads } = myfitness;
   const count = ads.images.length;
@@ -69,12 +67,7 @@ export default function LinkedInCase() {
 
   return (
     <main className="case-page case-table" ref={rootRef}>
-      {/* Back goes to the table when the visitor got here by picking the tablet
-          up, so they land where they left off rather than at the top of the
-          board. A deep link has no table behind it. */}
-      <a className="case-back" href={picked ? '#/phone' : '#/'}>
-        {picked ? '← Back to the table' : '← Back to work'}
-      </a>
+      <a className="case-back" href="#/">← Back to work</a>
 
       <div className="mf-page">
         <section className="mf-block">

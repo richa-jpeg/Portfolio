@@ -1,17 +1,26 @@
 /* ============================================================
-   INSTAGRAM CASE STUDY — #/instagram
-   • A phone frame starts small on the dotted board and zooms in
-     to fill the screen (animation on entry).
-   • The UI inside the phone mirrors the Instagram profile grid:
-     account header, stats, highlights and the 3-up post grid.
-   • Sticky notes on the left/right explain the design decisions.
-   • Click a post to open a lightbox (images and videos).
-   Everything shown is driven by `instagram` in content.jsx.
+   IG PHONE — one phone interior: chrome, profile, grid, lightbox.
+
+   Two case pages render this with different content —
+   ImBesharamPhoneCase (#/imBesharamPhone) and JaigarhCase
+   (#/jaigarhHeritageFestival) — which is the point of extracting it: the
+   lightbox is a real interaction (open state, an Escape listener, a
+   fixed-position overlay styled in cases.css) and two copies of it would
+   drift the first time one was touched. The two pages stay separate
+   components on separate routes; only the screen is shared.
+
+   Nothing here is module-scoped: the only state is which post is open, it is
+   per instance, and App.jsx keys the case overlay by route, so one page can
+   never inherit the other's open lightbox.
+
+   `deviceRef` is attached to `.phone`, NOT to `.phone-screen`. `.phone` is
+   the element carrying the device's pre-hidden entry state and the transform
+   the pick-up flight writes (see cases.css), and it is the element
+   ImBesharamPhoneCase hands to usePickFlight to measure the flight home.
+   This file owns the phone's position in the layout too (`.phone-zoom`, the
+   centred cell of `.case-layout`) so both pages centre it the same way.
    ============================================================ */
-import { useEffect, useRef, useState } from 'react';
-import { instagram } from './content.jsx';
-import { usePickFlight } from './lib/usePickFlight.js';
-import Annotation from './components/ui/Annotation.jsx';
+import { useEffect, useState } from 'react';
 
 /* ---------- small stroke icons (Instagram-ish) ---------- */
 const ICON_PATHS = {
@@ -188,14 +197,9 @@ function IgLightbox({ post, account, onClose }) {
   );
 }
 
-/* ---------- the case-study page ---------- */
-export default function InstagramCase() {
+/* ---------- the shell itself ---------- */
+export default function IgPhone({ account, posts, deviceRef }) {
   const [active, setActive] = useState(null);
-  const deviceRef = useRef(null);
-
-  /* Either the plain entry, or the flight in from the phone picked up off the
-     table at #/phone. */
-  const { entered, picked } = usePickFlight('instagram', deviceRef);
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') setActive(null); };
@@ -203,68 +207,22 @@ export default function InstagramCase() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const { account, posts, notes } = instagram;
-
   return (
-    <main className="case-page case-table">
-      {/* Back goes to the table when the visitor got here by picking the phone
-          up, so they land where they left off rather than at the top of the
-          board. A deep link has no table behind it. */}
-      <a className="case-back" href={picked ? '#/phone' : '#/'}>
-        {picked ? '← Back to the table' : '← Back to work'}
-      </a>
-
-      <div className={`case-layout${picked ? ' picked' : ''}${entered ? ' in' : ''}`}>
-        {/* ---------- notes · left ---------- */}
-        <aside className="case-notes case-notes-left" aria-label="Design notes">
-          <span className="case-notes-label">{notes.leftLabel}</span>
-          {notes.left.map((n, i) => (
-            <Annotation
-              key={n.title}
-              color={n.color}
-              rotate={n.rotate}
-              className="case-note"
-              style={{ transitionDelay: `${0.45 + i * 0.12}s` }}
-            >
-              {n.sticker ? <span className="case-note-emoji" aria-hidden="true">{n.sticker}</span> : null}
-              <strong>{n.title}</strong>
-              <p>{n.text}</p>
-            </Annotation>
-          ))}
-        </aside>
-
-        {/* ---------- the phone (flown in from the table, or zooms in) ---------- */}
-        <div className="phone-zoom">
-          <div className="phone" ref={deviceRef}>
-            <div className="phone-screen">
-              <IgTopBar />
-              <IgProfile account={account} />
-              <IgGrid posts={posts} onOpen={setActive} />
-              <IgTabBar account={account} />
-            </div>
+    <>
+      <div className="phone-zoom">
+        <div className="phone" ref={deviceRef}>
+          <div className="phone-screen">
+            <IgTopBar />
+            <IgProfile account={account} />
+            <IgGrid posts={posts} onOpen={setActive} />
+            <IgTabBar account={account} />
           </div>
         </div>
-
-        {/* ---------- notes · right ---------- */}
-        <aside className="case-notes case-notes-right" aria-label="Results">
-          <span className="case-notes-label">{notes.rightLabel}</span>
-          {notes.right.map((n, i) => (
-            <Annotation
-              key={n.title}
-              color={n.color}
-              rotate={n.rotate}
-              className="case-note"
-              style={{ transitionDelay: `${0.55 + i * 0.12}s` }}
-            >
-              {n.sticker ? <span className="case-note-emoji" aria-hidden="true">{n.sticker}</span> : null}
-              <strong>{n.title}</strong>
-              <p>{n.text}</p>
-            </Annotation>
-          ))}
-        </aside>
       </div>
 
+      {/* Fixed-position (cases.css), so it is out of the case grid's flow and
+          stays a sibling of the phone rather than a cell in it. */}
       {active ? <IgLightbox post={active} account={account} onClose={() => setActive(null)} /> : null}
-    </main>
+    </>
   );
 }

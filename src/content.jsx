@@ -6,13 +6,49 @@
    links are PLACEHOLDERS. Search for "TODO" and replace before
    publishing. Nothing here was invented about a real person.
 
-   The case-study exports at the bottom (`instagram`, `phoneApp`,
-   `linkedin`, `booklet`, `myfitness`) keep the exact shape the case
-   components consume — editing their values is safe, renaming their
-   keys is not. `linkedin` is the exception: #/linkedin now reads
-   `myfitness` instead, so it is unused and is kept only in case the
-   tablet feed ever comes back.
+   The case-study exports at the bottom are each headed with the page
+   that consumes them, and keep the exact shape that page reads —
+   editing their values is safe, renaming their keys is not.
+   `phoneApp` is the exception: nothing renders it since the table
+   replaced the plant-app page, and it is kept only as the closest
+   thing to a written-down design for that screen.
+
+   Every route string in the app comes from `routes`, just below.
    ============================================================ */
+
+/* ============================================================
+   ROUTES — the one home of every route string.
+
+   Every site that needs a route reads it from here: App.jsx builds
+   the CASES keys as `'#/' + routes.<key>`, the rail cards' `route`
+   fields and the table's objects point at these values, and each
+   case component passes the same identifier to usePickFlight and to
+   its back link.
+
+   That is not tidiness for its own sake. A route string is written
+   in four places per case — the CASES key, the card or object that
+   links there, the destination's `usePickFlight(route, …)` and its
+   back link — and a mismatch is SILENT: `takePick()` returns null,
+   the pick-up flight quietly degrades to the plain entry, and the
+   click opens the wrong page with nothing in the console. One
+   identifier per route is what makes that drift impossible rather
+   than merely unlikely.
+
+   The values are BARE — no `#/` prefix — because WorkCard.jsx and
+   ImBesharamCase.jsx compose the href themselves as `'#/' + route`.
+
+   Renaming a value renames the public URL. There are no aliases: an
+   alias is just one more route string that can drift.
+   ============================================================ */
+export const routes = {
+  myFitness: 'myFitness',
+  imBesharam: 'imBesharam',
+  imBesharamPhone: 'imBesharamPhone',
+  imBesharamTablet: 'imBesharamTablet',
+  imBesharamBooklet: 'imBesharamBooklet',
+  jaigarh: 'jaigarhHeritageFestival',
+  millimetre: 'millimetre',
+};
 
 /* Featured thumbnails. Natively 1920×1200 (16:10), which is exactly the
    ratio the rail cards render at — so they display uncropped. */
@@ -96,30 +132,57 @@ export const about = {
    03 · EXPERIENCE — credits, as peel-up panels.
    TODO: placeholder credits. Replace with real roles.
    ============================================================ */
+// export const experience = [
+//   {
+//     id: 'x1',
+//     year: '2024 — now',
+//     role: 'Lead Motion Designer',
+//     company: 'Studio Placeholder', // TODO
+//     text: 'Own the motion language across product and brand. Built the easing and duration token set now used in every shipped surface.',
+//     tags: ['Design systems', 'Motion tokens', 'Direction'],
+//   },
+//   {
+//     id: 'x2',
+//     year: '2022 — 2024',
+//     role: 'Senior Motion Designer',
+//     company: 'Agency Placeholder', // TODO
+//     text: 'Led motion on launch films and interactive campaigns, from storyboard through to the final render and the shipped interface.',
+//     tags: ['Campaign', '3D', 'Interaction'],
+//   },
+//   {
+//     id: 'x3',
+//     year: '2020 — 2022',
+//     role: 'Motion & Interaction Designer',
+//     company: 'Product Placeholder', // TODO
+//     text: 'Prototyped and shipped interface motion for a multi-platform product, then wrote the guidelines that kept it consistent.',
+//     tags: ['Prototyping', 'UI motion', 'Guidelines'],
+//   },
+// ];
+
 export const experience = [
   {
     id: 'x1',
-    year: '2024 — now',
-    role: 'Lead Motion Designer',
-    company: 'Studio Placeholder', // TODO
-    text: 'Own the motion language across product and brand. Built the easing and duration token set now used in every shipped surface.',
-    tags: ['Design systems', 'Motion tokens', 'Direction'],
+    year: 'August 2025- Present',
+    role: 'Visual Designer',
+    company: 'Mensa Brands', // TODO
+    text: 'Owned end-to-end D2C design, delivering performance creatives, motion, AI videos, banners, and landing pages that supported ROAS growth from ~0–3 to ~5–9 with improved CTR. Streamlined creative workflows through D2C templatization, AI asset optimization, and a funnel-first, intent-led design approach. Collaborated across marketing, product, app, social, marketplace, and offline initiatives while mentoring the design team on AI workflows and visual storytelling.',
+    tags: ['D2C Design', 'AI Workflows', 'Performance Creative'],
   },
   {
     id: 'x2',
-    year: '2022 — 2024',
-    role: 'Senior Motion Designer',
-    company: 'Agency Placeholder', // TODO
-    text: 'Led motion on launch films and interactive campaigns, from storyboard through to the final render and the shipped interface.',
-    tags: ['Campaign', '3D', 'Interaction'],
+    year: 'Oct 2024 - May 2025',
+    role: 'Jr. Graphic Designer',
+    company: 'Hassle Bae (Creative Agency)', // TODO
+    text: 'Created social and motion content for large-scale cultural events including Jaipur Music Stage, Jaigarh Heritage Festival, Sacred Amritsar, and India by the Bay. Led Instagram branding and multi-platform campaigns for diverse clients, delivering 2D animation reels that strengthened content reach and engagement.',
+    tags: ['Motion Graphics', 'Cultural Branding', 'Social Design'],
   },
   {
     id: 'x3',
-    year: '2020 — 2022',
-    role: 'Motion & Interaction Designer',
-    company: 'Product Placeholder', // TODO
-    text: 'Prototyped and shipped interface motion for a multi-platform product, then wrote the guidelines that kept it consistent.',
-    tags: ['Prototyping', 'UI motion', 'Guidelines'],
+    year: 'Jan 2024 - April 2024',
+    role: 'Communication Designer',
+    company: 'Epistle Communications', // TODO
+    text: 'Developed brand identities, launch assets, 2D animations, print collaterals, and digital creatives for brands across architecture, interiors, and luxury design. Created company profiles, emailers, signatures, and logo animations while adapting visual storytelling to distinct brand languages and communication needs.',
+    tags: ['Brand Identity', 'Visual Storytelling', '2D Animation'],
   },
 ];
 
@@ -129,43 +192,45 @@ export const experience = [
    `poster` should be 16:10 (as the Artboard files are) — the card
    renders at that ratio and `object-fit: cover` will crop anything
    that isn't, rather than distort it.
-   `route` opens the matching case study at #/<route>.
+   `route` opens the matching case study at #/<route>, and is one of
+   the `routes` values above rather than a literal — a card cannot
+   point at a name no page answers to, and the pick-up flight cannot
+   silently stop matching.
    `url`, when present, WINS for the rail card: it becomes a plain
    outbound link that opens in a new tab and routes nowhere, which is
    the whole mechanism for an off-site project — see WorkCard.jsx.
-   The table at #/phone deliberately IGNORES `url` and keeps every
-   object interactive, so a project can be off-site in the rail and
-   still be pick-up-able there.
+   No card uses it now; the Millimetre card linked out to Drive until
+   there was a #/millimetre to open.
    ============================================================ */
 export const featured = [
     {
-    id: 'f2',
-    index: '02',
-    title: 'MYFITNESS',
+    id: 'f1',
+    index: '01',
+    title: 'My Fitness',
     category: 'FMCG',
     year: 'Present',
     desc: 'MYFITNESS is India’s leading health-focused food brand crafting protein-focused nutrition. Holding 40% market share of peanut butter category in India, MYFITNESS runs an omnichannel D2C business. Care to see In\'s and Out\'s of a consumer brand?',
-    route: 'linkedin',
+    route: routes.myFitness,
     poster: thumbLinkedIn,
   },
   {
-    id: 'f3',
-    index: '03',
+    id: 'f2',
+    index: '02',
     title: 'ImBesharam',
     category: 'Adult wellness',
     year: '2024',
     desc: 'ImBesharam is a D2C adult wellness brand operating through online channels and their social media handles. Come let’s take your “kinky” side for a spin :P',
-    route: 'phone',
+    route: routes.imBesharam,
     poster: thumbApp,
   },
   {
-    id: 'f1',
-    index: '01',
+    id: 'f3',
+    index: '03',
     title: 'Jaigarh Heritage Festival',
     category: 'Cultural Event',
     year: '2024',
     desc: 'The Jaigarh Heritage Festival is an annual cultural celebration held at the historic Jaigarh Fort in Jaipur, Rajasthan. It is produced by Teamwork Arts in partnership with the royal family of Jaipur.',
-    route: 'instagram',
+    route: routes.jaigarh,
     poster: thumbInstagram,
   },
   {
@@ -175,12 +240,8 @@ export const featured = [
     category: 'Luxury Space design',
     year: '2024',
     desc: 'Millimetre is an Indian brand specializing in high-pressure decorative laminates, matching edge bands, and curated interior surface solutions',
-    route: 'booklet',
+    route: routes.millimetre,
     poster: thumbBooklet,
-    /* Off-site for the rail only: this makes the booklet CARD an outbound
-       link opening in a new tab rather than routing to #/booklet. The booklet
-       on the table at #/phone ignores it and stays the interactive flipbook. */
-    url: 'https://drive.google.com/file/d/1VWaGHsRlB6RthsCQHIwZR_Xu2zFFky2Z/view?pli=1',
   },
 ];
 
@@ -229,9 +290,10 @@ export const contact = {
 
 /* ============================================================
    CASE STUDIES — shapes are frozen; values are yours to edit.
+   Each export is headed with the page that renders it.
    ============================================================ */
 
-/* ---------- Instagram phone (#/instagram) ---------- */
+/* ---------- Instagram phone — ImBesharamPhoneCase (#/imBesharamPhone) ---------- */
 const ph = (c1, c2, emoji = '') =>
   `data:image/svg+xml;utf8,${encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640">` +
@@ -285,7 +347,47 @@ export const instagram = {
   },
 };
 
-/* ---------- Leafy app (#/phone) ---------- */
+/* ---------- Instagram phone — JaigarhCase (#/jaigarhHeritageFestival) ----------
+   Same shape as `instagram` above, because the same phone shell renders both.
+   Every value is the festival's own, and that is the point: the Jaigarh phone
+   and ImBesharam's phone are two pages with two feeds, and editing one cannot
+   change the other.
+
+   TODO: placeholder content. The account facts come from the card copy in
+   `featured`; the posts are illustrative and name no real artist or sponsor
+   from the festival — replace them with the real campaign before publishing. */
+export const jaigarh = {
+  account: {
+    handle: '@jaigarhfest', // TODO: real handle
+    name: 'Jaigarh Heritage Festival',
+    avatarEmoji: '🏰',
+    avatarGradient: ['#e0a45c', '#8c3b2f'],
+    stats: { posts: 86, followers: '12.4k', following: 214 },
+    bio: ['Annual cultural festival', 'Jaigarh Fort · Jaipur', 'Produced by Teamwork Arts'],
+    highlights: [
+      { emoji: '🎶', label: 'Lineup' },
+      { emoji: '🏰', label: 'The fort' },
+      { emoji: '🧵', label: 'Craft' },
+      { emoji: '🎟️', label: 'Tickets' },
+    ],
+  },
+  posts: [
+    { id: 'jh1', type: 'image', src: ph('#e8c07d', '#c1663f', '🏰'), caption: 'The fort at first light, before the gates open.', likes: '1,842 likes', comments: 41 },
+    { id: 'jh2', type: 'image', src: ph('#d97b4a', '#7d2f2a', '🎶'), caption: 'Soundcheck on the ramparts — the evening stage going up.', likes: '2,310 likes', comments: 66 },
+    { id: 'jh3', type: 'video', src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', poster: ph('#f0b95c', '#b8542f', '🥁'), caption: 'Folk percussion, courtyard session.', likes: '4,517 likes', comments: 148 },
+    { id: 'jh4', type: 'image', src: ph('#c9a227', '#8a5a2b', '🧵'), caption: 'Craft bazaar, day one — block print and blue pottery.', likes: '1,206 likes', comments: 33 },
+    { id: 'jh5', type: 'image', src: ph('#8c3b2f', '#3f4a7a', '🪔'), caption: 'The walls lit for the closing night.', likes: '6,092 likes', comments: 214 },
+    { id: 'jh6', type: 'image', src: ph('#e0a45c', '#8c3b2f', '🎨'), caption: 'Identity system: sandstone, indigo and marigold.', likes: '997 likes', comments: 27 },
+    { id: 'jh7', type: 'image', src: ph('#7d8f5a', '#4a5a35', '🚶'), caption: 'The morning heritage walk, fort gate to the lake.', likes: '1,455 likes', comments: 38 },
+    { id: 'jh8', type: 'image', src: ph('#3f4a7a', '#20263f', '✨'), caption: 'Night finale — lights over the old wall.', likes: '5,244 likes', comments: 176 },
+    { id: 'jh9', type: 'image', src: ph('#f0d9a8', '#e0a45c', '📸'), caption: 'Grid finale — the festival in nine frames.', likes: '2,918 likes', comments: 91 },
+  ],
+};
+
+/* ---------- Leafy app — UNUSED (#/imBesharam is the table now) ----------
+   Nothing imports this since the plant-app page gave way to the table at
+   #/imBesharam. Kept as the written-down design for that screen; delete it and
+   the `.pa-*` block in cases.css together, or give it a page again. */
 export const phoneApp = {
   app: { name: 'Leafy', emoji: '🌿', avatar: '🍀' },
   hero: {
@@ -323,7 +425,10 @@ export const phoneApp = {
   },
 };
 
-/* ---------- LinkedIn tablet (#/linkedin) ---------- */
+/* ---------- LinkedIn tablet — ImBesharamTabletCase (#/imBesharamTablet) ----------
+   A placeholder feed about the designer, not about ImBesharam; it is the
+   tablet that stands on the ImBesharam table, and the copy is content debt
+   rather than a routing decision. */
 export const linkedin = {
   profile: {
     name: person.name,
@@ -352,7 +457,7 @@ export const linkedin = {
   },
 };
 
-/* ---------- MYFITNESS (#/linkedin) ----------
+/* ---------- MYFITNESS — MyFitnessCase (#/myFitness) ----------
    Two pieces of campaign work, in the order the page shows them.
 
    The ads are read straight off the folder — every .png in
@@ -387,8 +492,10 @@ export const myfitness = {
   },
 };
 
-/* ---------- Brand booklet (#/booklet) ---------- */
+/* ---------- Brand booklet — ImBesharamBookletCase (#/imBesharamBooklet) ---------- */
 export const booklet = {
+  /* TODO: the table's cover reads "Zine / FAP techniques" while the printed
+     pages are a Leafy brand booklet. One of the two is the placeholder. */
   brand: 'Leafy',
   leaves: [
     {
@@ -419,34 +526,59 @@ export const booklet = {
 };
 
 /* ============================================================
-   THE TABLE (#/phone) — the three objects you can pick up.
+   THE TABLE (#/imBesharam) — the three objects you can pick up.
 
-   This is the page the third Featured card opens. It shows a phone, a tablet
-   and a booklet on a lit table, and this is the only copy on it. Which object
-   each one becomes is decided in PhoneAppCase.jsx.
+   The page the ImBesharam card opens. It shows a phone, a tablet and a
+   booklet on a lit table, with a prompt to pick one up; which object each one
+   becomes is decided in ImBesharamCase.jsx.
 
-   The phone and the tablet are the SAME projects as the Instagram and LinkedIn
-   cards, so they are still read from `featured` — rename a card and the object
-   on the table follows, which is what you want for one project in two places.
+   All three are ImBesharam's own pieces and are listed here in full. They used
+   to be derived from `featured` instead — the phone and tablet were "whichever
+   cards carry the instagram and linkedin routes" — and that is exactly what
+   went wrong: after the rail was reordered, the objects on ImBesharam's table
+   were labelled Jaigarh Heritage Festival and My Fitness, and picking one up
+   opened a page belonging to a different project than the object named.
+   Three explicit entries cost three blocks and remove the coupling: the object
+   on the table, the page it opens and the caption under it are one entry.
 
-   The booklet is deliberately NOT. It is its own piece: the fourth Featured
-   card is a different thing altogether (it links off-site), so letting the
-   table's booklet inherit that card's name meant renaming one renamed the
-   other. Hence a full entry here, cover text included, with nothing shared.
+   `route` must be the value the destination component passes to
+   usePickFlight, or the pick-up flight silently does not happen — that is why
+   it is a `routes` value rather than a literal. `kind` is the face: `FACES`
+   and `NOUN` in ImBesharamCase.jsx are keyed on it, so `book` is the booklet's
+   key and not `booklet`.
    ============================================================ */
 export const table = {
   prompt: 'Pick one up to interact',
   hint: 'Put it back to try another',
 
-  booklet: {
-    id: 't-book',
-    title: 'Zine',
-    category: 'Flipbook',
-    year: '2024',
-    kind: 'book',
-    route: 'booklet',
-    /* Printed on the cover. It lives here rather than hardcoded in the
-       component so the object and the caption under it cannot disagree. */
-    cover: { title: 'Zine', sub: 'FAP techniques' },
-  },
+  objects: [
+    {
+      /* TODO: placeholder names — these are the pieces, not the brand. */
+      id: 't-phone',
+      title: 'Instagram grid',
+      category: 'Social media',
+      year: '2024',
+      kind: 'phone',
+      route: routes.imBesharamPhone,
+    },
+    {
+      id: 't-tablet',
+      title: 'LinkedIn feed',
+      category: 'Social media',
+      year: '2024',
+      kind: 'tablet',
+      route: routes.imBesharamTablet,
+    },
+    {
+      id: 't-book',
+      title: 'Zine',
+      category: 'Flipbook',
+      year: '2024',
+      kind: 'book',
+      route: routes.imBesharamBooklet,
+      /* Printed on the cover. It lives here rather than hardcoded in the
+         component so the object and the caption under it cannot disagree. */
+      cover: { title: 'Zine', sub: 'FAP techniques' },
+    },
+  ],
 };

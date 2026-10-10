@@ -1,44 +1,37 @@
 /* ============================================================
-   THE TABLE — #/phone
+   THE TABLE — #/imBesharam
 
-   This route is the one the third Featured card opens. Rather than a device,
-   it shows three objects on the lit studio surface every case page uses — a
-   phone, a tablet and a booklet — with a prompt to pick one up. Picking one
-   opens that project's case study and flies the object to the centre of the
-   screen (lib/pickTransition.js + lib/usePickFlight.js). The back link there
-   returns HERE, not to the board, so you can put one down and take another.
+   The page the ImBesharam card opens. Rather than a device, it shows three
+   objects on the lit studio surface every case page uses — a phone, a tablet
+   and a booklet — with a prompt to pick one up. Picking one opens that
+   object's own case study and flies the object to the centre of the screen
+   (lib/pickTransition.js + lib/usePickFlight.js). The back link there returns
+   HERE, not to the board, so you can put one down and take another.
 
-   The Leafy app's own phone mock-up is not shown: this page is the table.
+   WHERE THE OBJECTS COME FROM: `table.objects` in content.jsx. They used to be
+   derived from `featured` — "whichever cards carry the instagram and linkedin
+   routes" — and that quietly put other projects' names on this table: after
+   the rail was reordered, the objects standing here were labelled Jaigarh
+   Heritage Festival and My Fitness, and one of them opened a page belonging to
+   a third project. Three explicit entries in content.jsx are what keep the
+   object, the caption under it and the page it opens as one thing. Each
+   object's `route` is a `routes` value and must match the destination
+   component's usePickFlight argument, or the flight silently does not run.
 
-   WHY MINIATURES RATHER THAN THE LIVE CASE UIs: the real interiors (IgGrid,
+   WHY MINIATURES RATHER THAN THE LIVE CASE UIs: the real interiors (IgPhone,
    the LinkedIn feed) live inside their case components bound to their own
    state, and at this size they would be illegible anyway. These faces reuse
    the device shell and palette instead, so the object you pick up and the
    device you land on read as the same thing.
-
-   WHERE THE OBJECTS COME FROM: the phone and the tablet are the Instagram and
-   LinkedIn projects, read from `featured`, so renaming either card renames the
-   object here too. The booklet is its own entry (`table.booklet`) so that it
-   and the fourth card can be renamed independently. See content.jsx for both.
    ============================================================ */
 import { useRef } from 'react';
-import { featured, table } from './content.jsx';
+import { table } from './content.jsx';
 import { gsap, EASE } from './lib/gsapSetup.js';
 import { useGsapContext } from './lib/useGsap.js';
 import { setPick } from './lib/pickTransition.js';
 
-/* Which rail projects appear on the table, and what each becomes.
-
-   The booklet is absent on purpose. It is NOT the fourth Featured card — that
-   card is a different piece linking off-site — so deriving it from `featured`
-   meant renaming one silently renamed the other. It comes from its own entry,
-   `table.booklet` in content.jsx, which is also where its cover text lives. */
-const RAIL_KINDS = {
-  instagram: 'phone',
-  linkedin: 'tablet',
-};
-
-/* Spoken name of each object, for the link's accessible name. */
+/* Spoken name of each object, for the link's accessible name. `kind` is the
+   face key, and `book` — not `booklet` — is the booklet's. */
 const NOUN = { phone: 'phone', tablet: 'tablet', book: 'booklet' };
 
 /* Tile gradients mirror the post colours in content.jsx's `instagram.posts`
@@ -121,7 +114,7 @@ function BookFace({ cover }) {
 
 const FACES = { phone: PhoneFace, tablet: TabletFace, book: BookFace };
 
-export default function PhoneAppCase() {
+export default function ImBesharamCase() {
   const rootRef = useRef(null);
 
   /* The objects arrive the way the devices do on the other case pages: from
@@ -140,13 +133,8 @@ export default function PhoneAppCase() {
       .from(labels, { y: 16, opacity: 0, duration: 0.7, stagger: 0.12 }, 0.18);
   }, []);
 
-  /* The two rail projects, then the booklet from its own entry. */
-  const objects = [
-    ...featured
-      .filter((p) => RAIL_KINDS[p.route])
-      .map((p) => ({ ...p, kind: RAIL_KINDS[p.route] })),
-    table.booklet,
-  ];
+  /* The three objects, exactly as content.jsx lists them. */
+  const { objects } = table;
 
   /* Record where the object is on screen on the way out. Modifier-clicks open
      a new tab, where this module's state does not exist anyway, so there is
@@ -189,12 +177,6 @@ export default function PhoneAppCase() {
                 <a
                   className={`obj obj-${kind}`}
                   href={`#/${p.route}`}
-                  /* `url` is deliberately ignored here, and this is the ONE
-                     place it is. An off-site project links out from its rail
-                     card (WorkCard.jsx), but the table exists to be picked up
-                     and interacted with — an object that quietly left the site
-                     would break the single thing this page is for. So every
-                     object on the table opens its case study, flight included. */
                   onClick={pick(p.route)}
                   aria-label={`Pick up the ${NOUN[kind]} — ${p.title} case study`}
                   data-cursor

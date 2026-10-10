@@ -14,7 +14,7 @@
    behind them so its scroll position and pins survive the trip.
    ============================================================ */
 import { useEffect, useState } from 'react';
-import { person } from './content.jsx';
+import { person, routes, featured, table } from './content.jsx';
 import { ScrollTrigger } from './lib/gsapSetup.js';
 import { useLenis, getLenis } from './lib/useLenis.js';
 import { useReducedMotion } from './lib/useReducedMotion.js';
@@ -35,17 +35,51 @@ import MoreWork from './components/chapters/MoreWork.jsx';
 import Contact from './components/chapters/Contact.jsx';
 import Footer from './components/chapters/Footer.jsx';
 
-import InstagramCase from './InstagramCase.jsx';
-import PhoneAppCase from './PhoneAppCase.jsx';
-import LinkedInCase from './LinkedInCase.jsx';
-import BookletCase from './BookletCase.jsx';
+import MyFitnessCase from './MyFitnessCase.jsx';
+import ImBesharamCase from './ImBesharamCase.jsx';
+import ImBesharamPhoneCase from './ImBesharamPhoneCase.jsx';
+import ImBesharamTabletCase from './ImBesharamTabletCase.jsx';
+import ImBesharamBookletCase from './ImBesharamBookletCase.jsx';
+import JaigarhCase from './JaigarhCase.jsx';
+import MillimetreCase from './MillimetreCase.jsx';
 
+/* The case pages, keyed by the route that opens them.
+
+   Every key is `'#/' + routes.<key>` — the route strings themselves live in
+   content.jsx, so the rail card that links here, the table object that flies
+   here, the destination's own usePickFlight argument and its back link are all
+   reading the same values. A route string written twice is a route string that
+   can disagree with itself, and that failure is silent (see `routes` in
+   content.jsx).
+
+   The `title` is what the document title and the screen-reader announcement
+   use while the case is open. */
 const CASES = {
-  '#/instagram': { title: 'Instagram grid — Richa', Component: InstagramCase },
-  '#/phone': { title: 'Leafy app — Richa', Component: PhoneAppCase },
-  '#/linkedin': { title: 'LinkedIn campaign — Richa', Component: LinkedInCase },
-  '#/booklet': { title: 'Brand booklet — Richa', Component: BookletCase },
+  [`#/${routes.myFitness}`]: { title: `My Fitness — ${person.name}`, Component: MyFitnessCase },
+  [`#/${routes.imBesharam}`]: { title: `ImBesharam — ${person.name}`, Component: ImBesharamCase },
+  [`#/${routes.imBesharamPhone}`]: { title: `ImBesharam phone — ${person.name}`, Component: ImBesharamPhoneCase },
+  [`#/${routes.imBesharamTablet}`]: { title: `ImBesharam tablet — ${person.name}`, Component: ImBesharamTabletCase },
+  [`#/${routes.imBesharamBooklet}`]: { title: `ImBesharam booklet — ${person.name}`, Component: ImBesharamBookletCase },
+  [`#/${routes.jaigarh}`]: { title: `Jaigarh Heritage Festival — ${person.name}`, Component: JaigarhCase },
+  [`#/${routes.millimetre}`]: { title: `Millimetre — ${person.name}`, Component: MillimetreCase },
 };
+
+/* Dev-only: every link into a case page is checked against the table above
+   once, at load. A typo'd `routes.<key>` is `undefined`, which renders as
+   href="#/undefined" and simply does nothing when clicked — the wrong page
+   opening quietly is the bug this whole routing shape exists to prevent, so in
+   development it says so out loud instead. */
+if (import.meta.env.DEV) {
+  const declared = new Set(Object.values(routes));
+  const pages = new Set(Object.keys(CASES).map((k) => k.slice(2)));
+
+  declared.forEach((r) => {
+    if (!pages.has(r)) console.error(`[routes] "${r}" is declared in content.jsx but no case page answers to it.`);
+  });
+  [...featured, ...table.objects].forEach((p) => {
+    if (!declared.has(p.route)) console.error(`[routes] "${p.title}" links to "${p.route}", which is not a declared route.`);
+  });
+}
 
 function Board({ heroActive }) {
   return (
@@ -161,7 +195,10 @@ export default function App() {
         <Board heroActive={!showPreloader && !active} />
       </div>
 
-      {active ? <active.Component /> : null}
+      {/* Keyed by route: two routes that ever resolved to the same component
+          type would otherwise reuse one instance, carrying the open lightbox,
+          the flipbook's page and the pick flight across the navigation. */}
+      {active ? <active.Component key={route} /> : null}
 
       {showPreloader ? <Preloader onDone={onPreloaderDone} brand={`${person.name} — Reel`} /> : null}
 

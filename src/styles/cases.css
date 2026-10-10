@@ -1,5 +1,8 @@
 /* ============================================================
-   CASE STUDIES — #/instagram, #/phone, #/linkedin, #/booklet
+   CASE STUDIES — one page per project; see `routes` in content.jsx.
+
+   #/myFitness · #/imBesharam · #/imBesharamPhone · #/imBesharamTablet
+   #/imBesharamBooklet · #/jaigarhHeritageFestival · #/millimetre
 
    The device interiors deliberately keep their real-app look: a white
    Instagram, a LinkedIn blue, a paper booklet. Placed on the dark
@@ -15,7 +18,10 @@
 
    • Scroll inside a case is native, not Lenis. The overlay is its own
      scroll container and Lenis is stopped while it is open, so the
-     page behind cannot move.
+     page behind cannot move. Stopping Lenis is not enough on its own —
+     it still swallows every wheel and touch event — so `lib/useLenis.js`
+     also names `.case-page` in its `prevent` option, which is what
+     actually lets these overlays scroll.
    ============================================================ */
 
 .case-page {
@@ -64,6 +70,20 @@
   align-items: center;
   justify-items: center;
   padding: clamp(5rem, 10vh, 7rem) var(--gutter) 4rem;
+}
+
+/* The same layout with no annotation columns, for a case page that carries no
+   notes — the Jaigarh phone. A flex override rather than a
+   `grid-template-columns` one: the ≤1120px block at the end of this file
+   re-declares the grid columns, and this has to survive that breakpoint.
+   `case-layout` stays in the class list because the device's release state is
+   written as `.case-layout.in .phone`. */
+.case-layout.case-layout-solo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
 }
 
 /* ---------- Annotation columns ---------- */
@@ -155,8 +175,8 @@
   place-items: center;
 }
 
-/* The look of the device itself, at any size. The table page (#/phone) renders
-   `.obj-phone` / `.obj-tablet` — the same shell, smaller — so the object on the
+/* The look of the device itself, at any size. The table page (#/imBesharam)
+   renders `.obj-phone` / `.obj-tablet` — the same shell, smaller — so the object on the
    table and the device it opens cannot drift apart.
 
    The entry state is deliberately NOT in this rule. It lives in the next
@@ -279,11 +299,11 @@
 }
 
 /* ============================================================
-   THE TABLE — #/phone
+   THE TABLE — #/imBesharam
 
-   The page the Leafy app card opens. Instead of a device it shows three
+   The page the ImBesharam card opens. Instead of a device it shows three
    objects on the same lit surface every case page uses, with a prompt to pick
-   one up. Picking one opens that project's case study and flies the object to
+   one up. Picking one opens that object's own case study and flies it to
    the centre of the screen (lib/usePickFlight.js); the back link there returns
    HERE rather than to the board, so you can put one down and take another.
 
@@ -679,7 +699,12 @@
 }
 
 /* ============================================================
-   INSTAGRAM (#/instagram)
+   IG PHONE (#/imBesharamPhone, #/jaigarhHeritageFestival)
+
+   One screen, two pages: components/ui/IgPhone.jsx renders it for ImBesharam
+   and for Jaigarh with each project's own content. Everything below is keyed
+   off the `.ig-*` classes, which is why neither page needed a line of its own
+   here — if a future page does, it is not using the shared screen.
    ============================================================ */
 .ig-topbar {
   flex: 0 0 auto;
@@ -1058,7 +1083,11 @@
 }
 
 /* ============================================================
-   LEAFY APP (#/phone)
+   LEAFY APP — UNUSED
+
+   The plant-app screen's styles. Nothing renders them since the table
+   (#/imBesharam) replaced that page and the `phoneApp` content went unused;
+   delete this block and that export together, or give it a page again.
    ============================================================ */
 .pa-top {
   flex: 0 0 auto;
@@ -1230,7 +1259,7 @@
 }
 
 /* ============================================================
-   MYFITNESS (#/linkedin)
+   MYFITNESS (#/myFitness)
 
    The page is two blocks of artwork: the landing board, then the Meta Ads row.
    Nothing here is a device, so nothing here has an entry state to release —
@@ -1369,10 +1398,12 @@
 }
 
 /* ============================================================
-   LINKEDIN TABLET (#/linkedin)
+   IMBESHARAM TABLET (#/imBesharamTablet)
 
-   DEAD: #/linkedin no longer renders a tablet — see MYFITNESS above. Kept
-   only so the feed can be brought back without rebuilding its stylesheet.
+   The feed inside the tablet that stands on the table. This block outlived
+   the route it was written for: the tablet page was deleted when MyFitness
+   took its place and the styles were kept for its return, which is what
+   ImBesharamTabletCase.jsx now is.
    ============================================================ */
 .li-top {
   flex: 0 0 auto;
@@ -1563,7 +1594,7 @@
 }
 
 /* ============================================================
-   BOOKLET (#/booklet)
+   BOOKLET (#/imBesharamBooklet)
    ============================================================ */
 .booklet-column {
   display: flex;
