@@ -14,7 +14,7 @@
    question has finished, and a fast reload can't desync them.
    ============================================================ */
 import { useRef } from 'react';
-import { hero, person } from '../../content.jsx';
+import { hero, person, resume } from '../../content.jsx';
 import { gsap, EASE } from '../../lib/gsapSetup.js';
 import { useGsapContext } from '../../lib/useGsap.js';
 import { useReducedMotion } from '../../lib/useReducedMotion.js';
@@ -144,11 +144,29 @@ export default function Hero({ active = true }) {
   );
 }
 
-/* Meta row + scroll cue. Kept in a child so the reduced-motion branch
-   renders exactly the same markup as the animated one. */
+/* Resume download, meta row and scroll cue. Kept in a child so the
+   reduced-motion branch renders exactly the same markup as the
+   animated one.
+
+   Everything here carries `hero-fade`, which is the handle the reveal
+   timeline uses to stagger this block in behind the answer — so adding
+   an element here means adding it to that stagger for free. */
 function HeroRest() {
   return (
     <>
+      <a
+        className="resume-btn hero-fade"
+        href={resume.link}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`${resume.resumeLabel} — opens in a new tab`}
+      >
+        <span>{resume.resumeLabel}</span>
+        <span className="resume-btn-icon" aria-hidden="true">
+          ↓
+        </span>
+      </a>
+
       <dl className="hero-meta hero-fade">
         {hero.meta.map((m) => (
           <div className="hero-meta-item" key={m.label}>
@@ -157,10 +175,17 @@ function HeroRest() {
           </div>
         ))}
       </dl>
+
+      {/* The rail is static and the pulse travels down it — a second
+          element rather than an animated background-position, because
+          a moving background gradient on a 1px box aliases badly. */}
       <div className="hero-cue hero-fade">
         <span className="text-label">{hero.scrollCue}</span>
-        <span className="hero-cue-line" aria-hidden="true" />
+        <span className="hero-cue-track" aria-hidden="true">
+          <span className="hero-cue-pulse" />
+        </span>
       </div>
+
       <p className="visually-hidden">
         {person.name}, {person.role}
       </p>

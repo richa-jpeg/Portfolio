@@ -48,6 +48,9 @@ export default function WorkCard({ project }) {
           decoding="async"
           width="1920"
           height="1200"
+          /* The carousel drags horizontally, and a draggable image
+             hijacks that gesture with the browser's own drag ghost. */
+          draggable="false"
         />
         <span className="rail-thumb-sheen" aria-hidden="true" />
       </div>

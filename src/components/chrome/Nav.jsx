@@ -7,7 +7,7 @@
    element and IO reports nonsense.
    ============================================================ */
 import { useEffect, useRef, useState } from 'react';
-import { nav, site } from '../../content.jsx';
+import { nav, resume } from '../../content.jsx';
 import { gsap, ScrollTrigger } from '../../lib/gsapSetup.js';
 import { scrollTo } from '../../lib/useLenis.js';
 import { useReducedMotion } from '../../lib/useReducedMotion.js';
@@ -61,9 +61,9 @@ export default function Nav() {
         ))}
       </ul>
 
-      <a className="nav-reel" href={site.reel} target="_blank" rel="noopener noreferrer">
+      <a className="nav-reel" href={resume.link} target="_blank" rel="noopener noreferrer">
         <span className="nav-reel-dot" aria-hidden="true" />
-        {site.showreelLabel}
+        {resume.resumeLabel}
       </a>
     </nav>
   );

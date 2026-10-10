@@ -158,8 +158,10 @@ export default function App() {
   /* ---------- measure once text and images have settled ----------
      @fontsource ships `font-display: swap`, so at first paint the page
      is still laid out in the fallback face. Every width-dependent
-     trigger (the Featured rail especially) re-measures on refresh, and
-     function-based start/end values make that refresh self-correcting. */
+     scroll trigger re-measures on refresh, and function-based start/end
+     values make that refresh self-correcting. (The Featured rail is no
+     longer one of them — it carries no ScrollTrigger now, and watches
+     its own track with a ResizeObserver instead.) */
   useEffect(() => {
     let cancelled = false;
     const refresh = () => {
@@ -200,7 +202,7 @@ export default function App() {
           the flipbook's page and the pick flight across the navigation. */}
       {active ? <active.Component key={route} /> : null}
 
-      {showPreloader ? <Preloader onDone={onPreloaderDone} brand={`${person.name} — Reel`} /> : null}
+      {showPreloader ? <Preloader onDone={onPreloaderDone} brand={`${person.name} — Portfolio`} /> : null}
 
       {/* Announce the overlay for screen readers, since it appears
           without a navigation event. */}

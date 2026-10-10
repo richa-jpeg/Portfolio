@@ -203,10 +203,47 @@
   margin-top: 1rem;
 }
 
-.hero-cue-line {
+/* The scroll cue: a static gold rail with a pulse that travels down it
+   on a loop. One 1px column and one moving 1px segment — the smallest
+   thing that reads as "keep going" without putting a second focal point
+   next to the answer. */
+.hero-cue-track {
+  position: relative;
   width: 1px;
   height: 46px;
-  background: linear-gradient(to bottom, var(--gold), transparent);
+  overflow: hidden;
+  background: linear-gradient(to bottom, var(--gold-line), transparent);
+}
+
+.hero-cue-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 14px;
+  background: linear-gradient(to bottom, transparent, var(--gold));
+  animation: cue-travel 2s ease-in-out infinite;
+}
+
+/* Under `prefers-reduced-motion` the global rule in tokens.css collapses
+   this to a single 0.01ms iteration, which parks the pulse on its 100%
+   keyframe — i.e. off the end and transparent. The static rail is left
+   behind as the cue, which is the whole point of splitting them. */
+@keyframes cue-travel {
+  0% {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(46px);
+    opacity: 0;
+  }
 }
 
 /* ============================================================
@@ -284,6 +321,20 @@
   flex: 1;
   display: flex;
   align-items: center;
+  /* `pan-y`, not `none`: the page must still scroll vertically when a
+     touch starts on a card, but a horizontal drag belongs to us. Left
+     at the default the browser claims the horizontal gesture as a pan,
+     fires `pointercancel`, and the swipe dies mid-flight. */
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.rail-viewport.is-dragging {
+  cursor: grabbing;
+  /* Set on pointerdown rather than on first movement, so a drag cannot
+     begin by selecting the caption text. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* The card width and the track's end padding are the same variable, so
@@ -334,6 +385,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Belt and braces with the `draggable={false}` on the element itself:
+     a native image drag would strand the swipe on a drag ghost. */
+  -webkit-user-drag: none;
 }
 
 /* A fixed diagonal highlight, so the thumbnails read as lit surfaces
@@ -384,18 +438,68 @@
   color: var(--gold);
 }
 
-.rail-progress {
-  height: 1px;
-  margin: 0 var(--gutter);
-  background: var(--line);
+/* ---------- Carousel controls ----------
+   Arrows, then dots. The dots replaced the old scrub bar: they carry
+   the same "where am I" information and additionally take you there, so
+   keeping both would be two indicators saying one thing. */
+.rail-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3vw, 1.75rem);
+  padding: 0 var(--gutter);
 }
 
-.rail-fill {
-  display: block;
-  height: 100%;
+.rail-arrow {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--dust);
+  line-height: 1;
+  transition: color 0.3s var(--ease-snap), border-color 0.3s var(--ease-snap),
+    background 0.3s var(--ease-snap);
+}
+
+.rail-arrow:hover:not(:disabled) {
+  color: var(--ink);
   background: var(--gold);
-  transform-origin: left center;
-  transform: scaleX(0);
+  border-color: var(--gold);
+}
+
+/* Still rendered at the ends, just inert — a control that vanishes
+   moves the row it sits in and takes the other arrow with it. */
+.rail-arrow:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.rail-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  list-style: none;
+}
+
+.rail-dot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--smoke);
+  transition: background 0.35s var(--ease-snap), transform 0.35s var(--ease-snap);
+}
+
+.rail-dot:hover {
+  background: var(--gold-dim);
+}
+
+.rail-dot.is-active {
+  background: var(--gold);
+  transform: scale(1.4);
+  box-shadow: 0 0 12px rgba(200, 168, 130, 0.65);
 }
 
 /* ============================================================
@@ -943,7 +1047,13 @@
   color: var(--cream);
 }
 
-.contact-cta {
+/* The two calls to action, wherever they appear — the hero and the
+   contact card both carry the pair. They share a shape and differ only
+   in fill: "Start a conversation" is the primary action, so the resume
+   download keeps the transparent, gold-lined resting state and only
+   tints on hover. */
+.contact-cta,
+.resume-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -962,12 +1072,32 @@
   color: var(--ink);
 }
 
-.contact-cta-arrow {
+.resume-btn:hover {
+  background: var(--gold-soft);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.contact-cta-arrow,
+.resume-btn-icon {
   transition: transform 0.35s var(--ease-snap);
 }
 
 .contact-cta:hover .contact-cta-arrow {
   transform: translateX(4px);
+}
+
+.resume-btn:hover .resume-btn-icon {
+  transform: translateY(3px);
+}
+
+/* The pair sits as one row wherever both are present. */
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 /* ============================================================
@@ -1082,9 +1212,10 @@
 }
 
 @media (max-width: 900px) {
-  /* The rail stops being a pinned horizontal scrub and becomes a plain
-     vertical column. There is no second set of ScrollTriggers to fight
-     because Featured only builds them inside gsap.matchMedia. */
+  /* The rail stops being a carousel and becomes a plain vertical
+     column. Featured reads the same breakpoint (`LAYOUT_QUERY`) and
+     turns its engine off, so there is nothing here to unwind but the
+     CSS. */
   .rail-stage {
     padding: clamp(6rem, 16vh, 9rem) 0 clamp(3rem, 8vh, 5rem);
     gap: 3rem;
@@ -1092,6 +1223,8 @@
 
   .rail-viewport {
     display: block;
+    cursor: auto;
+    touch-action: auto;
   }
 
   .rail-track {
@@ -1109,7 +1242,11 @@
     align-self: center;
   }
 
-  .rail-progress {
+  /* Arrows and dots are hidden rather than removed: there is nothing
+     for them to drive once the cards are stacked, and the counter in
+     the header would be left reporting a position that does not
+     exist. */
+  .rail-controls {
     display: none;
   }
 }
@@ -1118,15 +1255,17 @@
    REDUCED MOTION
    GSAP creates nothing here (see useGsapContext), so anything whose
    resting state is set in CSS must be released, or it stays parked at
-   its "before" value forever. The scroll-linked rules and the rail
-   progress bar have no meaning without a scrub, so they are hidden.
+   its "before" value forever. The scroll-linked rules and the scroll
+   progress bar have no meaning without a scrubbed page, so they are
+   hidden. The rail's own controls are NOT — they are the only way to
+   move the carousel, which still works, it just arrives instead of
+   travelling.
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   .hero-rule {
     transform: scaleX(1);
   }
 
-  .rail-progress,
   .progress-track {
     display: none;
   }

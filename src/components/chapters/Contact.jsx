@@ -2,7 +2,7 @@
    CONTACT — the last chapter.
    ============================================================ */
 import { useRef } from 'react';
-import { contact, person } from '../../content.jsx';
+import { contact, person, resume } from '../../content.jsx';
 import { gsap, EASE } from '../../lib/gsapSetup.js';
 import { useGsapContext } from '../../lib/useGsap.js';
 import { charWave } from '../../lib/textFx.js';
@@ -70,12 +70,30 @@ export default function Contact() {
           </div>
         </TiltCard>
 
-        <a className="contact-cta contact-reveal" href={`mailto:${person.email}`}>
-          <span>{contact.cta}</span>
-          <span className="contact-cta-arrow" aria-hidden="true">
-            →
-          </span>
-        </a>
+        {/* Both calls to action share one reveal target rather than
+            animating separately — they are one gesture, and two
+            staggered pills read as two competing invitations. */}
+        <div className="contact-actions contact-reveal">
+          <a className="contact-cta" href={`mailto:${person.email}`}>
+            <span>{contact.cta}</span>
+            <span className="contact-cta-arrow" aria-hidden="true">
+              →
+            </span>
+          </a>
+
+          <a
+            className="resume-btn"
+            href={resume.link}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`${resume.resumeLabel} — opens in a new tab`}
+          >
+            <span>{resume.resumeLabel}</span>
+            <span className="resume-btn-icon" aria-hidden="true">
+              ↓
+            </span>
+          </a>
+        </div>
       </div>
     </section>
   );

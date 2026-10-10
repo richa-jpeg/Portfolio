@@ -59,16 +59,19 @@ import thumbBooklet from './public/Artboard-5.jpg';
 import hpoLanding from './public/HPO_landingpage.png';
 
 export const person = {
-  name: 'Richa', // TODO: real name
-  role: 'Visual Motion Designer',
-  email: 'hello@richa.dev', // TODO: real email
-  location: 'India', // TODO
+  name: 'Richa Sinha', // TODO: real name
+  role: 'Visual and Motion Designer',
+  email: 'richasinhawork12@gmail.com', // TODO: real email
+  location: 'Bangalore, India', // TODO
 };
 
-export const site = {
-  /* TODO: real showreel URL */
-  reel: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
-  showreelLabel: 'Showreel — 2026',
+/* One resume link, three places that offer it: the nav, the hero and
+   the contact card. Kept here so the label and the target can never be
+   updated in one of them and missed in the others. */
+export const resume = {
+  /* TODO: real resume URL — this is still the placeholder. */
+  link: 'https://drive.google.com/file/d/1DSh6bRbrMaOm7-4a_xgKlxfc4w11lEWD/view?usp=sharing',
+  resumeLabel: 'Download Resume',
 };
 
 /* Fixed top navigation. `id` must match a chapter's DOM id. */
@@ -93,7 +96,6 @@ export const hero = {
     { text: 'should not be', accent: true },
   ],
   meta: [
-    { label: 'Reel', value: '2026' },
     { label: 'Based in', value: person.location },
     { label: 'Open to', value: 'Freelance & full-time' },
   ],
@@ -280,10 +282,8 @@ export const contact = {
   lead: 'Got a project that needs to move? Tell me what you are building.',
   cta: 'Start a conversation',
   socials: [
-    { label: 'LinkedIn', url: 'https://linkedin.com/in/yourname' }, // TODO
-    { label: 'Dribbble', url: 'https://dribbble.com/yourname' }, // TODO
-    { label: 'Vimeo', url: 'https://vimeo.com/yourname' }, // TODO
-    { label: 'Instagram', url: 'https://instagram.com/yourname' }, // TODO
+    { label: 'LinkedIn', url: 'https://www.linkedin.com/in/richa-sinha-73881a277/' },
+    { label: 'Behance', url: 'https://www.behance.net/richasinha4' },
   ],
   footerNote: 'Designed & built from scratch',
 };

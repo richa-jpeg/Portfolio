@@ -14,7 +14,7 @@ UI framework.
 |---|---|
 | **Hero** | A question types itself out in mono, dims back — then the answer arrives as a per-character wave, each glyph rising out of its mask and un-squashing as it lands, with a gold bloom opening behind it. |
 | **01 · Selected Work** | A gold curtain wipes up over a receding backdrop, carries the chapter wordmark, then lifts away to reveal the rail. |
-| **Featured rail** | The section pins and four device cards scrub horizontally past a fixed index. The card you're looking at sharpens and lifts; its neighbours fall back on scale, blur and opacity. Each opens its case study. |
+| **Featured rail** | A carousel: the page scrolls past it normally and the cards move left and right by drag, swipe, the arrows, the dots or the arrow keys, snapping card to card. The card you're looking at sharpens and lifts; its neighbours fall back on scale, blur and opacity. Each opens its case study. |
 | **02 · The Craft** | A tunnel of gold wireframes flies past the camera and blows out into a flash that hands off to the next chapter. |
 | **About** | Statement type, resolved word by word behind a mask. |
 | **Experience** | Credits as panels that peel up from a bottom-left hinge, each pinning while the next scrolls over it. |
@@ -88,6 +88,14 @@ single 0→1 progress. Two rules matter more than they look:
   with `position: fixed` when the viewport is the scroller, and a
   transformed ancestor becomes that element's containing block — every
   pin would land in the wrong place.
+
+The Selected Work rail is the one chapter that does **not** pin. It used
+to scrub horizontally off the page's vertical scroll, which cost a full
+screen of scrolling before the page moved on; it is a carousel now, moved
+directly by drag, swipe, the arrows, the dots and the arrow keys. Its
+per-card focus is derived from the track's single translation value rather
+than tweened per card, so a drag frame and an animation frame are the same
+frame and moving the rail either way looks identical.
 
 ## Performance notes
 
