@@ -1,65 +1,34 @@
 /* ============================================================
    IG PHONE — one phone interior: chrome, profile, grid, lightbox.
 
-   Two case pages render this with different content —
-   ImBesharamPhoneCase (#/imBesharamPhone) and JaigarhCase
-   (#/jaigarhHeritageFestival) — which is the point of extracting it: the
-   lightbox is a real interaction (open state, an Escape listener, a
-   fixed-position overlay styled in cases.css) and two copies of it would
-   drift the first time one was touched. The two pages stay separate
-   components on separate routes; only the screen is shared.
+   Three places render this with different content —
+   ImBesharamPhoneCase (#/imBesharamPhone), JaigarhCase
+   (#/jaigarhHeritageFestival) and the ImBesharam showcase (#/imBesharam) —
+   which is the point of extracting it: the lightbox is a real interaction
+   (open state, an Escape listener, a fixed-position overlay styled in
+   cases.css) and copies of it would drift the first time one was touched.
+   The pages stay separate components on separate routes; only the screen is
+   shared.
+
+   The showcase passes `onOpenPost`, because its posts are carousels and open
+   in the shared focus dialog (components/ui/IgPost.jsx) instead of this
+   file's single-image lightbox. Without the prop the phone behaves exactly
+   as before.
 
    Nothing here is module-scoped: the only state is which post is open, it is
    per instance, and App.jsx keys the case overlay by route, so one page can
-   never inherit the other's open lightbox.
+   never inherit another's open lightbox.
 
    `deviceRef` is attached to `.phone`, NOT to `.phone-screen`. `.phone` is
    the element carrying the device's pre-hidden entry state and the transform
    the pick-up flight writes (see cases.css), and it is the element
    ImBesharamPhoneCase hands to usePickFlight to measure the flight home.
    This file owns the phone's position in the layout too (`.phone-zoom`, the
-   centred cell of `.case-layout`) so both pages centre it the same way.
+   centred cell of `.case-layout`) so both pages centre it the same way; the
+   showcase's own column simply wraps that cell.
    ============================================================ */
 import { useEffect, useState } from 'react';
-
-/* ---------- small stroke icons (Instagram-ish) ---------- */
-const ICON_PATHS = {
-  heart: 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z',
-  comment: 'M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.8-.9L3 20l1.1-4.1A8.4 8.4 0 1 1 21 11.5z',
-  send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
-  home: 'M3 10.5L12 3l9 7.5M5 9.5V21h5v-6h4v6h5V9.5',
-  search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
-  plus: 'M12 5v14M5 12h14',
-  reels: 'M3.5 5.5h17v13h-17zM3.5 10h17M7.5 5.5l3.5 4.5M11.5 5.5l3.5 4.5M15.5 5.5l3.5 4.5',
-  bookmark: 'M6 4h12v16l-6-4-6 4z',
-};
-
-function IgIcon({ name, size = 20, filled = false, className = '' }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {name === 'dots' ? (
-        <>
-          <circle cx="5" cy="12" r="1.1" fill="currentColor" stroke="none" />
-          <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none" />
-          <circle cx="19" cy="12" r="1.1" fill="currentColor" stroke="none" />
-        </>
-      ) : (
-        <path d={ICON_PATHS[name]} />
-      )}
-    </svg>
-  );
-}
+import { IgIcon } from './igIcons.jsx';
 
 /* ---------- app chrome pieces ---------- */
 function IgTopBar() {
@@ -119,17 +88,30 @@ function IgProfile({ account }) {
 function IgGrid({ posts, onOpen }) {
   return (
     <div className="ig-grid">
-      {posts.map((p) => (
-        <button key={p.id} className="ig-tile" onClick={() => onOpen(p)} aria-label={`Open post: ${p.caption}`}>
-          {p.type === 'video' ? (
-            <span className="ig-tile-media" style={{ backgroundImage: `url(${p.poster || p.src})` }}>
-              <span className="ig-tile-play" aria-hidden="true">▶</span>
-            </span>
-          ) : (
-            <img src={p.src} alt={p.caption} loading="lazy" decoding="async" />
-          )}
-        </button>
-      ))}
+      {posts.map((p) => {
+        /* A post can be a single image, a video, or a carousel. Carousels
+           carry `slides`; their cover is the first slide, so the grid and the
+           focus view agree without a second source of truth. */
+        const cover = p.cover || p.poster || p.src || (p.slides && p.slides[0]);
+        const slideCount = p.slides ? p.slides.length : 0;
+        return (
+          <button key={p.id} className="ig-tile" onClick={() => onOpen(p)} aria-label={`Open post: ${p.caption}`}>
+            {p.type === 'video' ? (
+              <span className="ig-tile-media" style={{ backgroundImage: `url(${cover})` }}>
+                <span className="ig-tile-play" aria-hidden="true">▶</span>
+              </span>
+            ) : (
+              <img src={cover} alt={p.caption} loading="lazy" decoding="async" />
+            )}
+            {slideCount > 1 ? (
+              <span className="ig-tile-count" aria-hidden="true">
+                <IgIcon name="carousel" size={12} />
+                {slideCount}
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -198,8 +180,13 @@ function IgLightbox({ post, account, onClose }) {
 }
 
 /* ---------- the shell itself ---------- */
-export default function IgPhone({ account, posts, deviceRef }) {
+export default function IgPhone({ account, posts, deviceRef, onOpenPost }) {
   const [active, setActive] = useState(null);
+
+  /* The showcase page supplies `onOpenPost` because its posts open in the
+     shared carousel focus view, not in this single-image lightbox. When it
+     is supplied the internal lightbox is never mounted. */
+  const open = onOpenPost || setActive;
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') setActive(null); };
@@ -214,7 +201,7 @@ export default function IgPhone({ account, posts, deviceRef }) {
           <div className="phone-screen">
             <IgTopBar />
             <IgProfile account={account} />
-            <IgGrid posts={posts} onOpen={setActive} />
+            <IgGrid posts={posts} onOpen={open} />
             <IgTabBar account={account} />
           </div>
         </div>

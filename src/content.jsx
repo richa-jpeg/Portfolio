@@ -58,6 +58,27 @@ import thumbApp from './public/Artboard-4.jpg';
 import thumbBooklet from './public/Artboard-5.jpg';
 import hpoLanding from './public/HPO_landingpage.png';
 
+/* ImBesharam showcase media. These live in src/public/IMB and are imported
+   rather than referenced as `/IMB/...` URLs: Vite hashes imported assets, and
+   the folder sits under src/, so it is not a public directory. The spaces in
+   the filenames are part of the names on disk. */
+import kama1 from './public/IMB/Kamasutra/KAMA-1.png';
+import kama4 from './public/IMB/Kamasutra/KAMA-4.png';
+import kama5 from './public/IMB/Kamasutra/KAMA-5.png';
+import kama6 from './public/IMB/Kamasutra/KAMA-6.png';
+import kama7 from './public/IMB/Kamasutra/KAMA-7.png';
+import lube1 from './public/IMB/lube edition/LB 1.jpg';
+import lube2 from './public/IMB/lube edition/LB 2.jpg';
+import lube4 from './public/IMB/lube edition/LB 4.jpg';
+import lube5 from './public/IMB/lube edition/LB 5.jpg';
+import fap3 from './public/IMB/SLIDES/fap slides-03.png';
+import fap4 from './public/IMB/SLIDES/fap slides-04.png';
+import fap6 from './public/IMB/SLIDES/fap slides-06.png';
+import zine1 from './public/IMB/Zine/zine1@2x.png';
+import zine2 from './public/IMB/Zine/ZIne2@2x.png';
+import zine3 from './public/IMB/Zine/zine3@2x.png';
+import zine5 from './public/IMB/Zine/zine5@2x.png';
+
 export const person = {
   name: 'Richa Sinha', // TODO: real name
   role: 'Visual and Motion Designer',
@@ -347,6 +368,98 @@ export const instagram = {
   },
 };
 
+/* ---------- ImBesharam showcase — ImBesharamCase (#/imBesharam) ----------
+   Two scroll views, each pairing one of the brand's pieces with the social
+   work around it. `feed.posts` also fills the phone's grid; every post is a
+   carousel whose first slide is its cover.
+
+   These are the real files from src/public/IMB, in the order the brief lists
+   them. Heads up: the KAMA PNGs are 5–8 MB each. Only the cover is decoded by
+   the cards and the phone grid, and the focus view loads one slide at a time,
+   but post 1's cover is still a heavy first paint — compressing those files
+   (or serving a smaller derived set) is the next performance win.
+
+   TODO: like/comment counts, account stats and bio are placeholders.
+   Replace them before publishing. */
+export const imBesharamShowcase = {
+  account: {
+    handle: '@imbesharam',
+    name: 'ImBesharam',
+    /* Rendered inside the gradient avatar circle, not as an emoji. */
+    avatarEmoji: 'IB',
+    avatarGradient: ['#f5187c', '#7a1fa2'],
+    stats: { posts: 342, followers: '186K', following: 89 }, // TODO: real figures
+    bio: [
+      'Adult wellness, minus the shame.',
+      'Play more, shame less.',
+      'New drops every week ↓',
+    ],
+    highlights: [
+      { emoji: '🔥', label: 'Kamasutra' },
+      { emoji: '💧', label: 'Lube' },
+      { emoji: '📖', label: 'Zine' },
+      { emoji: '🛍️', label: 'Shop' },
+    ],
+  },
+
+  feed: {
+    kicker: 'Instagram · carousel series',
+    title: 'The feed, in focus',
+    hint: 'Tap a post to open it. Like or save it right here.',
+    posts: [
+      {
+        id: 'imb-post-1',
+        type: 'carousel',
+        slides: [kama1, kama4, kama5, kama6, kama7],
+        caption: `They don’t call it the “guide to lovemaking” for no reason now do they? 👀
+
+India has been the powerhouse of all things seggs related for nearly centuries now but there are still many of us that don’t realise the full potential of what this guide entails 🤯`,
+        likes: 1284,
+        comments: 46,
+        audio: 'Original audio',
+        date: 'November 2024',
+      },
+      {
+        id: 'imb-post-2',
+        type: 'carousel',
+        slides: [lube1, lube2, lube4, lube5],
+        caption: `we know you know that when things in bed start getting tight (and not in a nice way), loob offers you a smooth, stress-free experience 🙌 From helping ease 🖊️etration with either a partner or a toy, especially for folx with vageenismus and low libeedo, to adding delicious flavours into the mix- Loob.Is.Amazing.For.All🔥
+
+A loobricant is your friend in need and in deed🥵 Drop a 💦 in the comments if you agree!`,
+        likes: 986,
+        comments: 28,
+        audio: 'Original audio',
+        date: 'November 2024',
+      },
+      {
+        id: 'imb-post-3',
+        type: 'carousel',
+        slides: [fap3, fap4, fap6],
+        caption: 'Ain\'t nobody got time for shame 🚫 A good self love session is all it takes to up your daily game 💪🏽',
+        likes: 1502,
+        comments: 37,
+        audio: 'Original audio',
+        date: 'November 2024',
+      },
+    ],
+  },
+
+  zine: {
+    kicker: 'Print · zine',
+    title: 'Besharam Zine',
+    hint: 'Here is a small magazine style booklet that cheekily guides through different FAP techniques',
+    /* The booklet's printed sheets in reading order. The artwork carries its
+       own folios, so the order matters: zine3 is page 01 and zine2 is page 02,
+       which is why they face each other in that order in the open spread. */
+    pages: [
+      { image: zine1, alt: 'BESHARAM zine cover — Discovering FAP techniques for women' },
+      { image: zine3, alt: 'Zine page 01 — Squat & Spark and Pretend Partner' },
+      { image: zine2, alt: 'Zine page 02 — Pearl It Up and All Fours for Anul' },
+      { image: zine5, alt: 'Zine back cover — Discover waves of Plezure' },
+    ],
+  },
+};
+
 /* ---------- Instagram phone — JaigarhCase (#/jaigarhHeritageFestival) ----------
    Same shape as `instagram` above, because the same phone shell renders both.
    Every value is the festival's own, and that is the point: the Jaigarh phone
@@ -526,11 +639,17 @@ export const booklet = {
 };
 
 /* ============================================================
-   THE TABLE (#/imBesharam) — the three objects you can pick up.
+   THE TABLE — the three objects the old #/imBesharam page let you pick up.
 
-   The page the ImBesharam card opens. It shows a phone, a tablet and a
-   booklet on a lit table, with a prompt to pick one up; which object each one
-   becomes is decided in ImBesharamCase.jsx.
+   ⚠ NOT RENDERED RIGHT NOW. #/imBesharam is the two-view showcase
+   (ImBesharamCase.jsx); the table it replaced is kept here because the
+   standalone phone, tablet and booklet routes still exist as deep links, and
+   because the pick-flight machinery and App.jsx's route check still read
+   `table.objects`. Bring the table back if that page returns.
+
+   It shows a phone, a tablet and a booklet on a lit table, with a prompt to
+   pick one up; which object each one becomes was decided in the old
+   ImBesharamCase.jsx.
 
    All three are ImBesharam's own pieces and are listed here in full. They used
    to be derived from `featured` instead — the phone and tablet were "whichever
@@ -544,8 +663,8 @@ export const booklet = {
    `route` must be the value the destination component passes to
    usePickFlight, or the pick-up flight silently does not happen — that is why
    it is a `routes` value rather than a literal. `kind` is the face: `FACES`
-   and `NOUN` in ImBesharamCase.jsx are keyed on it, so `book` is the booklet's
-   key and not `booklet`.
+   and `NOUN` in the old ImBesharamCase were keyed on it, so `book` is the
+   booklet's key and not `booklet`.
    ============================================================ */
 export const table = {
   prompt: 'Pick one up to interact',

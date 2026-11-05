@@ -1,208 +1,295 @@
 /* ============================================================
-   THE TABLE — #/imBesharam
+   IMBESHARAM — #/imBesharam
 
-   The page the ImBesharam card opens. Rather than a device, it shows three
-   objects on the lit studio surface every case page uses — a phone, a tablet
-   and a booklet — with a prompt to pick one up. Picking one opens that
-   object's own case study and flies the object to the centre of the screen
-   (lib/pickTransition.js + lib/usePickFlight.js). The back link there returns
-   HERE, not to the board, so you can put one down and take another.
+   The page the ImBesharam card opens: two scroll views, each pairing one
+   of the brand's pieces with the social work around it.
 
-   WHERE THE OBJECTS COME FROM: `table.objects` in content.jsx. They used to be
-   derived from `featured` — "whichever cards carry the instagram and linkedin
-   routes" — and that quietly put other projects' names on this table: after
-   the rail was reordered, the objects standing here were labelled Jaigarh
-   Heritage Festival and My Fitness, and one of them opened a page belonging to
-   a third project. Three explicit entries in content.jsx are what keep the
-   object, the caption under it and the page it opens as one thing. Each
-   object's `route` is a `routes` value and must match the destination
-   component's usePickFlight argument, or the flight silently does not run.
+   View 1 stands the Instagram phone on the left and floats three of the
+   brand's carousels on the right. The cards start behind the phone and fly
+   out to their places when the view enters — the posts should read as
+   coming off the feed, not as a grid that simply loaded. Clicking a card
+   (or a tile on the phone) opens that post in the focus dialog.
 
-   WHY MINIATURES RATHER THAN THE LIVE CASE UIs: the real interiors (IgPhone,
-   the LinkedIn feed) live inside their case components bound to their own
-   state, and at this size they would be illegible anyway. These faces reuse
-   the device shell and palette instead, so the object you pick up and the
-   device you land on read as the same thing.
+   View 2 centres the zine booklet under its heading — no floating cards
+   around it. Its pages are the designed artwork from src/public/IMB/Zine,
+   opened as a closed cover the visitor can flip through.
+
+   WHY THE DEVICES ENTER WITH `.is-in`: `.phone` and `.booklet` are already
+   pre-hidden in cases.css for the standalone case pages, and that state is
+   released by `.case-layout.in`. This page has no `.case-layout`, so it
+   gives each view its own release class. The cards are hidden by GSAP in a
+   layout effect instead of CSS, so reduced-motion users (for whom this
+   effect never hides anything) still see them.
+
+   The scroll container is `.case-page` itself, so the IntersectionObserver
+   below is rooted there rather than on the viewport.
    ============================================================ */
-import { useRef } from 'react';
-import { table } from './content.jsx';
-import { gsap, EASE } from './lib/gsapSetup.js';
-import { useGsapContext } from './lib/useGsap.js';
-import { setPick } from './lib/pickTransition.js';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { imBesharamShowcase } from './content.jsx';
+import { gsap } from './lib/gsapSetup.js';
+import { useReducedMotion } from './lib/useReducedMotion.js';
+import IgPhone from './components/ui/IgPhone.jsx';
+import BookletDevice from './components/ui/Booklet.jsx';
+import { IgPostCard, IgPostFocus } from './components/ui/IgPost.jsx';
 
-/* Spoken name of each object, for the link's accessible name. `kind` is the
-   face key, and `book` — not `booklet` — is the booklet's. */
-const NOUN = { phone: 'phone', tablet: 'tablet', book: 'booklet' };
+const { account, feed, zine } = imBesharamShowcase;
 
-/* Tile gradients mirror the post colours in content.jsx's `instagram.posts`
-   (the `ph()` helper there builds the same pairs), so the miniature reads as
-   the feed that opens when you pick it up. */
-const IG_TILES = [
-  'linear-gradient(135deg, #f6d365, #fda085)',
-  'linear-gradient(135deg, #d62976, #962fbf)',
-  'linear-gradient(135deg, #7c5cff, #4cc9f0)',
-  'linear-gradient(135deg, #4cc9f0, #7c5cff)',
-  'linear-gradient(135deg, #c3f0c3, #7bd88f)',
-  'linear-gradient(135deg, #ffc9a3, #ffb8c6)',
-  'linear-gradient(135deg, #feda75, #fa7e1e)',
-  'linear-gradient(135deg, #bfe3ff, #e4d5ff)',
-  'linear-gradient(135deg, #9747ff, #ff5ca8)',
-];
+const toggleId = (set, id) => {
+  const next = new Set(set);
+  if (next.has(id)) next.delete(id);
+  else next.add(id);
+  return next;
+};
 
-/* ---------- the phone: an Instagram grid ---------- */
-function PhoneFace() {
-  return (
-    <span className="obj-screen obj-screen-phone" aria-hidden="true">
-      <span className="obj-ig-top">
-        <span className="obj-ig-mark" />
-        <span className="obj-ig-dots" />
-      </span>
-      <span className="obj-ig-profile">
-        <span className="obj-ig-avatar" />
-        <span className="obj-ig-bars">
-          <span />
-          <span />
-        </span>
-      </span>
-      <span className="obj-ig-grid">
-        {IG_TILES.map((bg, i) => (
-          <span key={i} className="obj-ig-tile" style={{ background: bg }} />
-        ))}
-      </span>
-      <span className="obj-ig-tabbar">
-        <span /><span /><span /><span /><span />
-      </span>
-    </span>
+/* The booklet switches to a single page on the same breakpoint the layout
+   stacks at. In spread mode the library needs two 260px pages side by side,
+   which this page's 420px-wide booklet cannot give it — the spread would be
+   clipped on both sides. */
+function useCompactLayout() {
+  const [compact, setCompact] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 1000px)').matches
   );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1000px)');
+    const onChange = (e) => setCompact(e.matches);
+    mq.addEventListener('change', onChange);
+    setCompact(mq.matches);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  return compact;
 }
 
-/* ---------- the tablet: a feed of posts ---------- */
-function TabletFace() {
+function PostCluster({ posts, liked, saved, onOpen, onLike, onSave }) {
   return (
-    <span className="obj-screen obj-screen-tablet" aria-hidden="true">
-      <span className="obj-li-top">
-        <span className="obj-li-in">in</span>
-        <span className="obj-li-bars"><span /><span /></span>
-      </span>
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="obj-li-post">
-          <span className="obj-li-head">
-            <span className="obj-li-avatar" />
-            <span className="obj-li-bars">
-              <span />
-              <span />
-            </span>
-          </span>
-          <span className="obj-li-lines"><span /><span /><span /></span>
-        </span>
+    <div className="imb-cards">
+      {posts.map((post, i) => (
+        <div className="igcard-anchor" key={post.id}>
+          <div
+            className="igcard-float"
+            style={{ '--float-dur': `${6.4 + i * 0.9}s`, '--float-delay': `${-1.6 * i}s` }}
+          >
+            <IgPostCard
+              post={post}
+              account={account}
+              onOpen={onOpen}
+              liked={liked.has(post.id)}
+              saved={saved.has(post.id)}
+              onLike={() => onLike(post.id)}
+              onSave={() => onSave(post.id)}
+            />
+          </div>
+        </div>
       ))}
-    </span>
+    </div>
   );
 }
-
-/* ---------- the booklet: a closed cover ---------- */
-function BookFace({ cover }) {
-  return (
-    <span className="obj-cover" aria-hidden="true">
-      <span className="obj-spine" />
-      <span className="obj-cover-title">{cover.title}</span>
-      <span className="obj-cover-sub">{cover.sub}</span>
-      <span className="obj-pages" />
-    </span>
-  );
-}
-
-const FACES = { phone: PhoneFace, tablet: TabletFace, book: BookFace };
 
 export default function ImBesharamCase() {
   const rootRef = useRef(null);
+  const reduced = useReducedMotion();
+  const compact = useCompactLayout();
+  const [liked, setLiked] = useState(() => new Set());
+  const [saved, setSaved] = useState(() => new Set());
+  const [focused, setFocused] = useState(null);
 
-  /* The objects arrive the way the devices do on the other case pages: from
-     below, out of focus, then settling, walked left to right so the table
-     assembles rather than appearing. GSAP writes `transform`, while the tilt
-     and the hover lift are the separate `rotate`/`translate`/`scale`
-     properties — so the three compose instead of overwriting each other, and
-     `transform` stays clean for the flight on the far side of a pick. */
-  useGsapContext(rootRef, (el) => {
-    const objects = gsap.utils.toArray('.obj', el);
-    const labels = gsap.utils.toArray('.table-label', el);
-    if (!objects.length) return;
+  const openPost = useCallback((post) => setFocused(post), []);
+  const closePost = useCallback(() => setFocused(null), []);
+  const toggleLike = useCallback((id) => setLiked((prev) => toggleId(prev, id)), []);
+  const toggleSave = useCallback((id) => setSaved((prev) => toggleId(prev, id)), []);
 
-    const tl = gsap.timeline({ defaults: { ease: EASE.soft } });
-    tl.from(objects, { y: 40, opacity: 0, filter: 'blur(12px)', duration: 0.9, stagger: 0.12 }, 0)
-      .from(labels, { y: 16, opacity: 0, duration: 0.7, stagger: 0.12 }, 0.18);
-  }, []);
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return undefined;
 
-  /* The three objects, exactly as content.jsx lists them. */
-  const { objects } = table;
+    const scenes = Array.from(root.querySelectorAll('.imb-scene'));
+    const tweens = [];
+    const hidden = [];
 
-  /* Record where the object is on screen on the way out. Modifier-clicks open
-     a new tab, where this module's state does not exist anyway, so there is
-     nothing to measure for them. */
-  const pick = (route) => (e) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    /* Hide every not-yet-revealed card before the first paint. Measuring is
+       deferred to `play`, because the booklet inside HTMLFlipBook does not
+       have its final height yet at this point. */
+    if (!reduced) {
+      scenes.forEach((scene) => {
+        if (scene.classList.contains('is-in')) return;
+        const cards = gsap.utils.toArray('.igcard-anchor', scene);
+        if (!cards.length) return;
+        gsap.set(cards, { opacity: 0, scale: 0.92, filter: 'blur(10px)' });
+        hidden.push(...cards);
+      });
+    }
 
-    const el = e.currentTarget;
-    const box = el.getBoundingClientRect();
+    const play = (scene) => {
+      if (scene.classList.contains('is-in')) return;
+      scene.classList.add('is-in');
+      if (reduced) return;
 
-    /* Every object is tilted, so its client rect is the bounding box of the
-       ROTATED box — wider than the object by w·cos θ + h·sin θ. The flight
-       would start visibly oversized. The tilt is about the centre, so the
-       box's centre is still the object's true centre: rebuild the rect around
-       it from the untransformed layout size. */
-    setPick(
-      {
-        left: box.left + (box.width - el.offsetWidth) / 2,
-        top: box.top + (box.height - el.offsetHeight) / 2,
-        width: el.offsetWidth,
-        height: el.offsetHeight,
-      },
-      route
-    );
-  };
+      const cards = gsap.utils.toArray('.igcard-anchor', scene);
+      if (!cards.length) return;
+
+      /* On a narrow screen the cards sit in a horizontal strip BELOW the
+         device, so a flight from the device would be clipped by that strip's
+         overflow. A short lift-and-fade reads as the same idea without
+         fighting the layout. */
+      if (window.matchMedia('(max-width: 1000px)').matches) {
+        tweens.push(
+          gsap.fromTo(
+            cards,
+            { opacity: 0, y: 24, scale: 1, filter: 'blur(6px)' },
+            {
+              opacity: 1, y: 0, scale: 1, filter: 'blur(0px)',
+              duration: 0.85, ease: 'power3.out', stagger: 0.1, delay: 0.1, overwrite: 'auto',
+            }
+          )
+        );
+        return;
+      }
+
+      const device = scene.querySelector('.phone, .booklet');
+      if (!device) return;
+
+      /* Measure the device with its entry transform neutralised. Until the
+         `.is-in` transition runs, `.phone`/`.booklet` still carry
+         `scale: .87; translate: 0 44px`, and a rect taken in that state is
+         smaller and lower than the place the cards should emerge from. */
+      const prevScale = device.style.scale;
+      const prevTranslate = device.style.translate;
+      device.style.scale = '1';
+      device.style.translate = '0';
+      const box = device.getBoundingClientRect();
+      device.style.scale = prevScale;
+      device.style.translate = prevTranslate;
+
+      cards.forEach((card) => {
+        const c = card.getBoundingClientRect();
+        gsap.set(card, {
+          x: box.left + box.width / 2 - (c.left + c.width / 2),
+          y: box.top + box.height / 2 - (c.top + c.height / 2),
+          scale: 0.4,
+        });
+      });
+
+      tweens.push(
+        gsap.to(cards, {
+          x: 0,
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          filter: 'blur(0px)',
+          duration: 1.35,
+          ease: 'expo.out',
+          stagger: 0.16,
+          delay: 0.18,
+          overwrite: 'auto',
+          onComplete: () => gsap.set(cards, { clearProps: 'filter' }),
+        })
+      );
+    };
+
+    let io;
+
+    if ('IntersectionObserver' in window) {
+      io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            io.unobserve(entry.target);
+            play(entry.target);
+          });
+        },
+        { root, threshold: 0.2, rootMargin: '0px 0px -8% 0px' }
+      );
+      scenes.forEach((scene) => io.observe(scene));
+    } else {
+      scenes.forEach(play);
+    }
+
+    return () => {
+      if (io) io.disconnect();
+      tweens.forEach((tween) => tween.kill());
+      if (hidden.length) gsap.set(hidden, { clearProps: 'opacity,transform,filter' });
+    };
+  }, [reduced]);
 
   return (
-    <main className="case-page case-table" ref={rootRef}>
+    <main className="case-page imb-page" ref={rootRef}>
       <a className="case-back" href="#/">← Back to work</a>
 
-      <div className="case-tabletop">
-        <p className="table-prompt text-label">{table.prompt}</p>
+      <p className="imb-page-tag text-label" aria-hidden="true">Imbesharam · social &amp; print</p>
+      <h1 className="visually-hidden">ImBesharam — Instagram carousels and zine</h1>
 
-        <ul className="table-objects">
-          {objects.map((p, i) => {
-            const { kind } = p;
-            const Face = FACES[kind];
-            return (
-              <li key={p.id} className="table-item">
-                <a
-                  className={`obj obj-${kind}`}
-                  href={`#/${p.route}`}
-                  onClick={pick(p.route)}
-                  aria-label={`Pick up the ${NOUN[kind]} — ${p.title} case study`}
-                  data-cursor
-                >
-                  <Face cover={p.cover} />
-                </a>
+      {/* ---------- view 1 · the feed ---------- */}
+      <section className="imb-scene imb-view" aria-labelledby="imb-feed-title">
+        <div className="imb-view-inner">
+          <div className="imb-device-col">
+            <div className="imb-device">
+              <IgPhone account={account} posts={feed.posts} onOpenPost={openPost} />
+            </div>
 
-                <span className="table-label">
-                  {/* Numbered by position on the table, not by the rail's own
-                      01–04: this is a different set of three objects, and the
-                      Featured section keeps its numbering untouched. */}
-                  <span className="table-index text-mono">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span className="table-title">{p.title}</span>
-                  <span className="table-meta text-label">
-                    {p.category} · {p.year}
-                  </span>
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+            <div className="imb-caption">
+              <span className="imb-kicker">01 · {feed.kicker}</span>
+              <h2 className="imb-caption-title" id="imb-feed-title">{feed.title}</h2>
+              <p className="imb-caption-hint">{feed.hint}</p>
+            </div>
+          </div>
 
-        <p className="table-hint text-label">{table.hint}</p>
-      </div>
+          <PostCluster
+            posts={feed.posts}
+            liked={liked}
+            saved={saved}
+            onOpen={openPost}
+            onLike={toggleLike}
+            onSave={toggleSave}
+          />
+        </div>
+
+        <div className="imb-scroll-cue" aria-hidden="true">
+          <span>Scroll for the zine</span>
+          <span className="imb-scroll-arrow">↓</span>
+        </div>
+      </section>
+
+      {/* ---------- view 2 · the zine ---------- */}
+      <section className="imb-scene imb-view" aria-labelledby="imb-zine-title">
+        <div className="imb-view-inner imb-view-inner-zine">
+          <div className="imb-device-col">
+            <div className="imb-device">
+              {/* Re-mount when the layout flips between spread and portrait:
+                  react-pageflip reads these settings once, at init. The pages
+                  are 4:5, the zine artwork's own proportion, so the printed
+                  image fills each sheet without a crop. */}
+              <BookletDevice
+                key={compact ? 'portrait' : 'spread'}
+                portrait={compact}
+                pages={zine.pages}
+                showCover
+                pageWidth={320}
+                pageHeight={400}
+              />
+            </div>
+
+            <div className="imb-caption">
+              <span className="imb-kicker">02 · {zine.kicker}</span>
+              <h2 className="imb-caption-title" id="imb-zine-title">{zine.title}</h2>
+              <p className="imb-caption-hint">{zine.hint}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {focused ? (
+        <IgPostFocus
+          key={focused.id}
+          post={focused}
+          account={account}
+          onClose={closePost}
+          liked={liked.has(focused.id)}
+          saved={saved.has(focused.id)}
+          onLike={() => toggleLike(focused.id)}
+          onSave={() => toggleSave(focused.id)}
+        />
+      ) : null}
     </main>
   );
 }
